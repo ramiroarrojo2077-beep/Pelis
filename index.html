@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Pelis · Cine de dominio público sin anuncios</title>
+    <meta
+      name="description"
+      content="Buscá y mirá películas de dominio público y bibliotecas abiertas, sin anuncios ni rastreadores, con búsqueda en tiempo real, versiones en distintos idiomas y subtítulos."
+    />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0b0d12" />
+
+    <!--
+      Sin anuncios por construcción: la política de seguridad sólo permite
+      cargar código y estilos propios, y contenido multimedia de archive.org.
+      Cualquier script o píxel de terceros queda bloqueado por el navegador.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+               script-src 'self';
+               style-src 'self' 'unsafe-inline';
+               img-src 'self' data: blob: https://archive.org https://*.archive.org;
+               media-src 'self' blob: https://archive.org https://*.archive.org;
+               connect-src 'self' https://archive.org https://*.archive.org;
+               font-src 'self';
+               object-src 'none';
+               frame-src 'none';
+               base-uri 'self';
+               form-action 'none'"
+    />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23f2c14e'/%3E%3Cpath d='M9 6v12h6V6H9ZM4 7h2v2H4V7Zm0 4h2v2H4v-2Zm0 4h2v2H4v-2Zm14-8h2v2h-2V7Zm0 4h2v2h-2v-2Zm0 4h2v2h-2v-2Z' fill='%230b0d12'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#app">Ir al contenido</a>
+
+    <header id="header" class="header"></header>
+
+    <main id="app" class="main" tabindex="-1">
+      <noscript>
+        <p class="state">
+          Esta plataforma necesita JavaScript para buscar en la biblioteca de Internet Archive.
+        </p>
+      </noscript>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Catálogo servido por
+        <a href="https://archive.org" target="_blank" rel="noopener noreferrer">Internet Archive</a>.
+        Obras de dominio público y bibliotecas abiertas. Sin anuncios, sin rastreadores, sin cookies
+        de terceros.
+      </p>
+    </footer>
+
+    <script type="module" src="./src/js/app.js"></script>
+  </body>
+</html>
