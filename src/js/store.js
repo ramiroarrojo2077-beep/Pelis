@@ -92,24 +92,32 @@ export function saveProgress(movie, { time, duration, versionId }) {
   // Si terminó (>95%), lo sacamos de "seguir viendo".
   if (ratio > 0.95) {
     delete map[movie.id];
-  } else {
-    map[movie.id] = {
-      id: movie.id,
-      title: movie.title,
-      year: movie.year,
-      poster: movie.poster,
-      languages: movie.languages ?? [],
-      time,
-      duration: duration || null,
-      versionId: versionId || null,
-      updatedAt: Date.now(),
-    };
+    write(KEYS.progress, map);
+    return;
   }
 
-  const entries = Object.values(map)
+  const entry = {
+    id: movie.id,
+    title: movie.title,
+    year: movie.year,
+    poster: movie.poster,
+    languages: movie.languages ?? [],
+    time,
+    duration: duration || null,
+    versionId: versionId || null,
+    updatedAt: Date.now(),
+  };
+
+  // La entrada recién guardada encabeza la lista y nunca se descarta al
+  // recortar: Date.now() tiene resolución de milisegundo, así que varias
+  // entradas pueden empatar y el desempate por orden de inserción dejaría
+  // fuera justo la que acabamos de escribir.
+  const rest = Object.values(map)
+    .filter((item) => item?.id && item.id !== entry.id)
     .sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0))
-    .slice(0, MAX_PROGRESS_ENTRIES);
-  write(KEYS.progress, Object.fromEntries(entries.map((entry) => [entry.id, entry])));
+    .slice(0, MAX_PROGRESS_ENTRIES - 1);
+
+  write(KEYS.progress, Object.fromEntries([entry, ...rest].map((item) => [item.id, item])));
 }
 
 export function getContinueWatching() {

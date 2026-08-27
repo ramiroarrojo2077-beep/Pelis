@@ -12,10 +12,25 @@ import { el, languageLabel, selectField } from './ui.js';
 const SPEEDS = [0.75, 1, 1.25, 1.5, 2];
 const SAVE_EVERY_MS = 5000;
 
-function versionLabel(version, index) {
-  if (version.language) return languageLabel(version.language);
-  if (index === 0) return t('original');
-  return version.title || `${t('version')} ${index + 1}`;
+/**
+ * Etiqueta de cada versión. Si dos comparten idioma (pasa cuando un ítem sube
+ * dos montajes del mismo doblaje) se añade la calidad para poder distinguirlas.
+ */
+function versionLabels(versions) {
+  const base = versions.map((version, index) => {
+    if (version.language) return languageLabel(version.language);
+    if (index === 0 && versions.length === 1) return t('original');
+    return version.title || `${t('version')} ${index + 1}`;
+  });
+
+  const seen = new Map();
+  for (const label of base) seen.set(label, (seen.get(label) ?? 0) + 1);
+
+  return base.map((label, index) => {
+    if (seen.get(label) === 1) return label;
+    const quality = versions[index].sources[0]?.label;
+    return quality ? `${label} · ${quality}` : `${label} (${index + 1})`;
+  });
 }
 
 function subtitleLabel(track, index) {
@@ -73,9 +88,9 @@ export function createPlayer(movie, { startAt = 0, startVersionId = null } = {})
         } catch {
           /* algunas fuentes no admiten seek hasta tener metadatos */
         }
-        video.removeEventListener('loadedmetadata', seek);
       };
-      video.addEventListener('loadedmetadata', seek);
+      // `once` evita que el listener quede colgado si el vídeo nunca carga.
+      video.addEventListener('loadedmetadata', seek, { once: true });
     }
     if (wasPlaying) video.play().catch(() => {});
   }
@@ -107,7 +122,8 @@ export function createPlayer(movie, { startAt = 0, startVersionId = null } = {})
       const node = el('track', {
         kind: 'subtitles',
         src: objectUrl,
-        srclang: track.language || 'und',
+        // 'silent' es una etiqueta nuestra, no un código BCP 47.
+        srclang: track.language === 'silent' ? 'zxx' : track.language || 'und',
         label: subtitleLabel(track, 0),
         default: true,
       });
@@ -123,15 +139,17 @@ export function createPlayer(movie, { startAt = 0, startVersionId = null } = {})
 
   /* ---------- controles ---------- */
 
+  const labels = versionLabels(versions);
+
   const versionField =
     versions.length > 1
       ? selectField({
           id: 'player-version',
           label: t('version'),
           value: String(versionIndex),
-          options: versions.map((version, index) => ({
+          options: versions.map((_version, index) => ({
             value: String(index),
-            label: versionLabel(version, index),
+            label: labels[index],
           })),
           onchange: (value) => {
             versionIndex = Number(value);
@@ -257,7 +275,7 @@ export function createPlayer(movie, { startAt = 0, startVersionId = null } = {})
   video.addEventListener('timeupdate', onTimeUpdate);
   video.addEventListener('pause', persist);
   video.addEventListener('volumechange', onVolumeChange);
-  video.addEventListener('error', () => {
+  const onError = () => {
     const version = currentVersion();
     // Si el formato preferido falla, probamos el siguiente derivado.
     if (sourceIndex < version.sources.length - 1) {
@@ -267,7 +285,9 @@ export function createPlayer(movie, { startAt = 0, startVersionId = null } = {})
     } else {
       note.textContent = t('noVideo');
     }
-  });
+  };
+
+  video.addEventListener('error', onError);
   document.addEventListener('keydown', onKeyDown);
   window.addEventListener('beforeunload', persist);
 
@@ -296,6 +316,9 @@ export function createPlayer(movie, { startAt = 0, startVersionId = null } = {})
       video.removeEventListener('timeupdate', onTimeUpdate);
       video.removeEventListener('pause', persist);
       video.removeEventListener('volumechange', onVolumeChange);
+      // Sin esto, un error que llegue justo al salir de la ficha reengancharía
+      // el siguiente derivado y seguiría descargando vídeo de fondo.
+      video.removeEventListener('error', onError);
       document.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('beforeunload', persist);
       video.pause();

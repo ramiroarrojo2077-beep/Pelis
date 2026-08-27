@@ -17,7 +17,6 @@
   --radius: 14px;
   --radius-sm: 9px;
   --shadow: 0 18px 40px rgb(0 0 0 / 45%);
-  --header-h: 132px;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
@@ -258,6 +257,12 @@ img {
 
 .btn--more {
   margin: 0 auto;
+}
+
+.btn[disabled] {
+  opacity: 0.55;
+  cursor: default;
+  transform: none;
 }
 
 .icon-btn {
@@ -522,6 +527,46 @@ img {
   white-space: nowrap;
 }
 
+/* Tarjeta con botón de quitar (seguir viendo). */
+
+.card-wrap {
+  position: relative;
+}
+
+.card__remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 0;
+  background: rgb(0 0 0 / 65%);
+  color: #fff;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s var(--ease), background 0.15s var(--ease);
+}
+
+.card-wrap:hover .card__remove,
+.card__remove:focus-visible {
+  opacity: 1;
+}
+
+.card__remove:hover {
+  background: var(--danger);
+}
+
+/* Resultados anteriores mientras llega la nueva búsqueda. */
+
+.view.is-busy .grid {
+  opacity: 0.45;
+  transition: opacity 0.2s var(--ease);
+  pointer-events: none;
+}
+
 /* ---------------- Ficha y reproductor ---------------- */
 
 .back {
@@ -584,6 +629,10 @@ img {
   margin: 0;
 }
 
+.view--detail .row {
+  margin-top: 40px;
+}
+
 .player__stage {
   background: #000;
   border: 1px solid var(--line);
@@ -606,6 +655,12 @@ img {
   flex-wrap: wrap;
   gap: 14px;
   margin-top: 14px;
+}
+
+/* Las etiquetas de calidad ("240p · MPEG4 · 191 MB") no caben en el ancho de
+   los filtros de la cabecera. */
+.player__controls .select {
+  max-width: 260px;
 }
 
 .player__control {
@@ -658,6 +713,31 @@ img {
 
 .row__track--skeleton {
   overflow: hidden;
+}
+
+.skeleton-line,
+.skeleton-stage {
+  border-radius: var(--radius);
+  background: linear-gradient(100deg, var(--surface) 30%, var(--surface-2) 50%, var(--surface) 70%);
+  background-size: 220% 100%;
+  animation: shimmer 1.3s infinite linear;
+}
+
+.skeleton-line--title {
+  height: 38px;
+  width: min(420px, 70%);
+  margin-bottom: 12px;
+}
+
+.skeleton-line--sub {
+  height: 18px;
+  width: min(260px, 45%);
+  margin-bottom: 22px;
+}
+
+.skeleton-stage {
+  aspect-ratio: 16 / 9;
+  max-height: 78vh;
 }
 
 @keyframes shimmer {

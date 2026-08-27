@@ -46,8 +46,12 @@ function languageChips(codes = []) {
   );
 }
 
-/** Tarjeta de película para las cuadrículas y carruseles. */
-export function movieCard(item, { progress = null } = {}) {
+/**
+ * Tarjeta de película para las cuadrículas y carruseles.
+ * Con `onRemove` se envuelve en un contenedor para poder colgar el botón de
+ * quitar: un <button> dentro de un <a> sería HTML inválido.
+ */
+export function movieCard(item, { progress = null, onRemove = null } = {}) {
   const year = yearOf(item);
   const runtime = parseRuntime(item.runtime);
   const meta = [year, runtime ? formatDuration(runtime) : ''].filter(Boolean).join(' · ');
@@ -63,7 +67,7 @@ export function movieCard(item, { progress = null } = {}) {
 
   const ratio = progress?.duration ? Math.min(progress.time / progress.duration, 1) : 0;
 
-  return el(
+  const card = el(
     'a',
     {
       class: 'card',
@@ -72,7 +76,7 @@ export function movieCard(item, { progress = null } = {}) {
     },
     [
       el('div', { class: 'card__poster' }, [
-        el('span', { class: 'card__fallback', text: item.title }),
+        el('span', { class: 'card__fallback', 'aria-hidden': 'true', text: item.title }),
         poster,
         el('span', { class: 'card__play', 'aria-hidden': 'true', html: playIcon() }),
         ratio > 0 &&
@@ -87,6 +91,23 @@ export function movieCard(item, { progress = null } = {}) {
       ]),
     ],
   );
+
+  if (!onRemove) return card;
+
+  return el('div', { class: 'card-wrap' }, [
+    card,
+    el('button', {
+      class: 'card__remove',
+      type: 'button',
+      title: t('removeFromList'),
+      'aria-label': `${t('removeFromList')}: ${item.title}`,
+      text: '×',
+      onclick: (event) => {
+        event.preventDefault();
+        onRemove(item);
+      },
+    }),
+  ]);
 }
 
 function playIcon() {
@@ -94,20 +115,20 @@ function playIcon() {
 }
 
 /** Cuadrícula de tarjetas. */
-export function grid(items, { progressMap = {} } = {}) {
+export function grid(items, { progressMap = {}, onRemove = null } = {}) {
   return el(
     'div',
     { class: 'grid' },
-    items.map((item) => movieCard(item, { progress: progressMap[item.id] })),
+    items.map((item) => movieCard(item, { progress: progressMap[item.id], onRemove })),
   );
 }
 
 /** Carrusel horizontal con título. */
-export function carousel({ title, items, progressMap = {}, action = null }) {
+export function carousel({ title, items, progressMap = {}, action = null, onRemove = null }) {
   const track = el(
     'div',
     { class: 'row__track' },
-    items.map((item) => movieCard(item, { progress: progressMap[item.id] })),
+    items.map((item) => movieCard(item, { progress: progressMap[item.id], onRemove })),
   );
 
   const scrollBy = (direction) => {

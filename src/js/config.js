@@ -168,10 +168,16 @@ export const SORT_OPTIONS = [
   { id: 'title', value: 'titleSorter asc', label: { es: 'Título (A-Z)', en: 'Title (A-Z)' } },
 ];
 
-/** Formatos de vídeo reproducibles en navegador, de mejor a peor. */
+/**
+ * Formatos de vídeo reproducibles en navegador, del más al menos compatible.
+ * El orden importa: h.264 se reproduce en cualquier navegador, mientras que los
+ * derivados "MPEG4" de Internet Archive suelen ser MPEG-4 Parte 2, que Chrome y
+ * Safari a menudo no decodifican. Por eso la compatibilidad manda sobre la
+ * resolución, y `label` deja claro en la interfaz por qué un 480p va primero.
+ */
 export const VIDEO_FORMATS = [
-  { test: /^h\.264( ia)?$/i, ext: 'mp4', mime: 'video/mp4', score: 100 },
-  { test: /mpeg4|mp4/i, ext: 'mp4', mime: 'video/mp4', score: 90 },
-  { test: /webm/i, ext: 'webm', mime: 'video/webm', score: 70 },
-  { test: /ogg video|ogv|theora/i, ext: 'ogv', mime: 'video/ogg', score: 40 },
+  { test: /^h\.264( ia)?$/i, ext: 'mp4', mime: 'video/mp4', score: 100, label: '' },
+  { test: /mpeg4|mp4/i, ext: 'mp4', mime: 'video/mp4', score: 90, label: 'MPEG4' },
+  { test: /webm/i, ext: 'webm', mime: 'video/webm', score: 70, label: 'WebM' },
+  { test: /ogg video|ogv|theora/i, ext: 'ogv', mime: 'video/ogg', score: 40, label: 'Ogg' },
 ];

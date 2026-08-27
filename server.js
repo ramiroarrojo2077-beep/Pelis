@@ -6,9 +6,11 @@
  */
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
-import { extname, join, normalize, resolve } from 'node:path';
+import { extname, join, normalize, resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = resolve(import.meta.dirname);
+// `import.meta.dirname` sólo existe desde Node 20.11; así funciona también en 18.
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)));
 const PORT = Number(process.env.PORT) || 4173;
 const HOST = process.env.HOST || '0.0.0.0';
 
@@ -53,6 +55,12 @@ const server = createServer(async (req, res) => {
   let ext = extname(candidate);
 
   if (!body) {
+    // Un fichero que se pide con extensión y no existe es un 404 de verdad;
+    // devolver index.html ahí sólo esconde erratas en las rutas.
+    if (ext && requested !== '/') {
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }).end('Not found');
+      return;
+    }
     body = await readIfFile(join(ROOT, 'index.html'));
     ext = '.html';
   }

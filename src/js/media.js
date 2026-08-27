@@ -103,20 +103,23 @@ export function videoFormatOf(file) {
 
 /** Sube por la cadena `original` hasta el archivo maestro del que deriva. */
 export function rootOriginal(file, byName, depth = 0) {
-  const original = file?.original;
-  if (!original || depth > 5) return file?.name ?? '';
+  // Algunos ítems traen `original` como array; nos quedamos con el primero.
+  const original = Array.isArray(file?.original) ? file.original[0] : file?.original;
+  if (!original || typeof original !== 'string' || depth > 5) return file?.name ?? '';
   const parent = byName.get(original);
   if (!parent || parent === file) return original;
   return rootOriginal(parent, byName, depth + 1);
 }
 
-function qualityLabel(file) {
+function qualityLabel(file, format) {
   const height = Number(file.height);
-  if (Number.isFinite(height) && height > 0) return `${height}p`;
-  const format = String(file.format ?? '');
-  if (/512kb/i.test(format)) return '512 kb';
-  if (/hires/i.test(format)) return 'HiRes';
-  return format || 'Vídeo';
+  const base = Number.isFinite(height) && height > 0 ? `${height}p` : '';
+  if (base) return [base, format.label].filter(Boolean).join(' · ');
+
+  const raw = String(file.format ?? '');
+  if (/512kb/i.test(raw)) return '512 kb';
+  if (/hires/i.test(raw)) return 'HiRes';
+  return raw || 'Vídeo';
 }
 
 /**
@@ -146,13 +149,15 @@ export function buildVersions(files, { itemLanguages = [], downloadBase = '' } =
         name: file.name,
         url: `${downloadBase}/${encodeURIComponent(file.name)}`,
         mime: format.mime,
-        score: format.score + Math.min(Number(file.height) || 0, 2160) / 100,
-        height: Number(file.height) || null,
+        // El contenedor manda sobre la resolución: un MP4 480p es preferible a
+        // un Ogg 720p porque se reproduce en cualquier navegador.
+        tier: format.score,
+        height: Number(file.height) || 0,
         size: Number(file.size) || null,
-        label: qualityLabel(file),
+        label: qualityLabel(file, format),
         length: parseRuntime(file.length),
       }))
-      .sort((a, b) => b.score - a.score);
+      .sort((a, b) => b.tier - a.tier || b.height - a.height || (b.size ?? 0) - (a.size ?? 0));
 
     if (!sources.length) continue;
 
@@ -168,10 +173,10 @@ export function buildVersions(files, { itemLanguages = [], downloadBase = '' } =
     });
   }
 
-  // Primero las versiones con idioma reconocido, luego por duración/calidad.
+  // Primero las versiones con idioma reconocido, luego por calidad.
   return versions.sort((a, b) => {
     if (Boolean(b.detected) !== Boolean(a.detected)) return Number(b.detected) - Number(a.detected);
-    return (b.sources[0].score ?? 0) - (a.sources[0].score ?? 0);
+    return b.sources[0].tier - a.sources[0].tier || b.sources[0].height - a.sources[0].height;
   });
 }
 
@@ -280,11 +285,19 @@ export function plainText(value, limit = 0) {
   return `${text.slice(0, limit).replace(/\s+\S*$/, '')}…`;
 }
 
-/** Escapa los caracteres especiales de Lucene en el texto del buscador. */
-export function escapeQuery(term) {
-  return String(term)
-    .replace(/([+\-!(){}[\]^"~*?:\\/])/g, '\\$1')
-    .replace(/\b(AND|OR|NOT)\b/g, '"$1"')
+/**
+ * Limpia el texto del buscador para meterlo en una consulta Lucene.
+ *
+ * Escapar no basta: un término con AND/OR/NOT en mayúsculas se interpreta como
+ * operador, y las comillas de escape anidadas dentro de una frase entrecomillada
+ * rompen la consulta entera. Por eso quitamos la sintaxis en lugar de escaparla
+ * y pasamos los operadores a minúscula, donde son palabras normales.
+ */
+export function sanitizeTerm(term) {
+  return String(term ?? '')
+    .replace(/[+\-!(){}[\]^"~*?:\\/&|]/g, ' ')
+    .replace(/\b(AND|OR|NOT|TO)\b/g, (word) => word.toLowerCase())
+    .replace(/\s+/g, ' ')
     .trim();
 }
 
@@ -296,15 +309,20 @@ export function buildSearchQuery({ term = '', language = '', extra = '' } = {}) 
   const clauses = ['mediatype:(movies)'];
   clauses.push(`collection:(${PUBLIC_DOMAIN_COLLECTIONS.join(' OR ')})`);
 
-  const clean = escapeQuery(term);
-  if (clean) {
-    const words = clean.split(/\s+/).filter(Boolean);
+  const words = sanitizeTerm(term).split(' ').filter(Boolean);
+  if (words.length) {
     const phrase = words.join(' ');
-    const prefix = words.length ? `${words[words.length - 1]}*` : '';
-    const fuzzy = words.slice(0, -1).concat(prefix).join(' ');
+    const last = words[words.length - 1];
+    // Búsqueda por prefijo sobre la última palabra: los resultados aparecen
+    // antes de terminar de escribir. Con una sola letra no compensa, porque el
+    // comodín obliga al índice a recorrer medio catálogo.
+    const partial = words
+      .slice(0, -1)
+      .concat(last.length >= 2 ? `${last}*` : last)
+      .join(' AND ');
     clauses.push(
-      `(title:("${phrase}") OR title:(${fuzzy}) OR creator:("${phrase}") ` +
-        `OR subject:(${fuzzy}) OR description:("${phrase}"))`,
+      `(title:("${phrase}") OR title:(${partial}) OR creator:("${phrase}") ` +
+        `OR subject:(${partial}) OR description:("${phrase}"))`,
     );
   }
 

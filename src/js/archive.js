@@ -6,7 +6,13 @@
  * en tiempo real no lance decenas de consultas encadenadas.
  */
 import { ARCHIVE, CACHE_TTL, PAGE_SIZE } from './config.js';
-import { buildSearchQuery, buildSubtitles, buildVersions, languagesOf } from './media.js';
+import {
+  buildSearchQuery,
+  buildSubtitles,
+  buildVersions,
+  languagesOf,
+  srtToVtt,
+} from './media.js';
 
 const cache = new Map();
 
@@ -27,12 +33,51 @@ function intoCache(key, value) {
   return value;
 }
 
-async function getJSON(url, { signal } = {}) {
-  const response = await fetch(url, { signal, headers: { Accept: 'application/json' } });
+const RETRY_DELAY = 700;
+
+const wait = (ms, signal) =>
+  new Promise((resolve, reject) => {
+    const timer = setTimeout(resolve, ms);
+    signal?.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timer);
+        reject(new DOMException('Aborted', 'AbortError'));
+      },
+      { once: true },
+    );
+  });
+
+/**
+ * GET con un reintento. Internet Archive devuelve 5xx o 429 de vez en cuando y
+ * un segundo intento suele bastar; los 4xx no se reintentan porque no van a
+ * cambiar, y un aborto tampoco.
+ */
+async function getJSON(url, { signal, attempt = 0 } = {}) {
+  let response;
+  try {
+    response = await fetch(url, { signal, headers: { Accept: 'application/json' } });
+  } catch (error) {
+    if (error.name === 'AbortError' || attempt > 0) throw error;
+    await wait(RETRY_DELAY, signal);
+    return getJSON(url, { signal, attempt: attempt + 1 });
+  }
+
   if (!response.ok) {
+    const retryable = response.status === 429 || response.status >= 500;
+    if (retryable && attempt === 0) {
+      await wait(RETRY_DELAY, signal);
+      return getJSON(url, { signal, attempt: attempt + 1 });
+    }
     throw new Error(`Internet Archive respondió ${response.status}`);
   }
-  return response.json();
+
+  try {
+    return await response.json();
+  } catch {
+    // A veces devuelve una página de error HTML con estado 200.
+    throw new Error('Internet Archive devolvió una respuesta ilegible.');
+  }
 }
 
 const SEARCH_FIELDS = [
@@ -161,7 +206,6 @@ export async function getMovie(identifier, { signal } = {}) {
  * que es lo que admite <track> sin problemas de CORS.
  */
 export async function loadSubtitleTrack(track, { signal } = {}) {
-  const { srtToVtt } = await import('./media.js');
   const response = await fetch(track.url, { signal });
   if (!response.ok) throw new Error(`No se pudo cargar ${track.name}`);
   const text = await response.text();

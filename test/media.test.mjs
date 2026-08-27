@@ -6,7 +6,7 @@ import {
   buildSubtitles,
   buildVersions,
   detectLanguageFromName,
-  escapeQuery,
+  sanitizeTerm,
   formatBytes,
   formatClock,
   formatDuration,
@@ -87,6 +87,7 @@ test('buildVersions agrupa derivados y detecta doblajes', () => {
   const english = versions.find((version) => version.language === 'en');
   assert.equal(english.sources.length, 2, 'los dos derivados MP4 van juntos');
   assert.equal(english.sources[0].label, '480p', 'primero la mejor calidad');
+  assert.equal(english.sources[1].label, '240p · MPEG4');
   assert.match(english.sources[0].url, /^https:\/\/archive\.org\/download\/peli\/peli_english\.mp4$/);
   assert.equal(english.sources[0].mime, 'video/mp4');
 });
@@ -172,10 +173,26 @@ test('yearOf saca el año de year o date', () => {
   assert.equal(yearOf({}), '');
 });
 
-test('escapeQuery neutraliza sintaxis Lucene', () => {
-  assert.equal(escapeQuery('king kong'), 'king kong');
-  assert.ok(escapeQuery('a:b (c)').includes('\\:'));
-  assert.ok(escapeQuery('cine AND terror').includes('"AND"'));
+test('sanitizeTerm quita la sintaxis Lucene en vez de escaparla', () => {
+  assert.equal(sanitizeTerm('king kong'), 'king kong');
+  assert.equal(sanitizeTerm('a:b (c)'), 'a b c');
+  assert.equal(sanitizeTerm('rock & roll: la peli'), 'rock roll la peli');
+  // AND/OR/NOT en mayúscula son operadores; en minúscula son palabras.
+  assert.equal(sanitizeTerm('cine AND terror'), 'cine and terror');
+  assert.equal(sanitizeTerm('  varios   espacios  '), 'varios espacios');
+});
+
+test('regresión: un término con AND no rompe la consulta', () => {
+  const query = buildSearchQuery({ term: 'cine AND terror' });
+  // Antes salía title:("cine "AND" terror"), con comillas anidadas.
+  assert.ok(!/"[^"]*"[A-Z]+"/.test(query), 'sin comillas anidadas');
+  assert.equal((query.match(/"/g) ?? []).length % 2, 0, 'comillas balanceadas');
+  assert.ok(query.includes('title:("cine and terror")'));
+});
+
+test('regresión: una sola letra no genera comodín', () => {
+  assert.ok(!buildSearchQuery({ term: 'a' }).includes('a*'));
+  assert.ok(buildSearchQuery({ term: 'ab' }).includes('ab*'));
 });
 
 test('buildSearchQuery siempre acota a películas de dominio público', () => {
@@ -195,4 +212,39 @@ test('buildSearchQuery sin término sigue siendo válido', () => {
 
 test('prettyName limpia nombres de archivo', () => {
   assert.equal(prettyName('the_kid_1921.mp4'), 'the kid 1921');
+});
+
+test('regresión: `original` como array no rompe la agrupación', () => {
+  const files = [
+    { name: 'master.avi' },
+    { name: 'master.mp4', format: 'h.264', original: ['master.avi'], height: 480 },
+  ];
+  const versions = buildVersions(files, { downloadBase: '/d' });
+  assert.equal(versions.length, 1);
+  assert.equal(versions[0].id, 'master.avi');
+});
+
+test('las fuentes ordenan por contenedor y luego por resolución', () => {
+  const files = [
+    { name: 'x.avi', format: 'Cinepack' },
+    { name: 'x.mp4', format: 'h.264', original: 'x.avi', height: 480 },
+    { name: 'x_hi.mp4', format: 'HiRes MPEG4', original: 'x.avi', height: 720 },
+    { name: 'x.ogv', format: 'Ogg Video', original: 'x.avi', height: 1080 },
+  ];
+  const [version] = buildVersions(files, { downloadBase: '/d' });
+  assert.deepEqual(
+    version.sources.map((source) => source.label),
+    ['480p', '720p · MPEG4', '1080p · Ogg'],
+    'manda la compatibilidad del códec, y la etiqueta lo explica',
+  );
+});
+
+test('rootOriginal corta las cadenas circulares', () => {
+  const a = { name: 'a.mp4', original: 'b.mp4' };
+  const b = { name: 'b.mp4', original: 'a.mp4' };
+  const byName = new Map([
+    ['a.mp4', a],
+    ['b.mp4', b],
+  ]);
+  assert.equal(typeof rootOriginal(a, byName), 'string');
 });
