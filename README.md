@@ -21,6 +21,16 @@ Pages, nginx…). No hay build ni dependencias: es HTML, CSS y módulos ES nativ
 > Hace falta servirlo por HTTP: abrir `index.html` con `file://` bloquea los
 > módulos ES por política de origen del navegador.
 
+## Publicar
+
+`.github/workflows/pages.yml` despliega en GitHub Pages en cada push a la rama
+principal (o a mano desde la pestaña Actions). Pasa primero las pruebas, publica
+sólo `index.html` y `src/`, y activa Pages en el repositorio la primera vez, así
+que no hay que configurar nada a mano.
+
+Las rutas son relativas y el enrutado va por hash, así que funciona igual en la
+raíz de un dominio que bajo un subdirectorio como `usuario.github.io/Pelis/`.
+
 ## Qué hace
 
 **Buscador en tiempo real.** Se busca mientras se escribe, con 220 ms de espera

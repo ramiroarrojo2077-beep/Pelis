@@ -1,0 +1,67 @@
+# Publica la aplicación en GitHub Pages.
+#
+# No hay compilación: se copian los ficheros que el navegador necesita
+# (index.html y src/) y se suben tal cual. `enablement: true` activa Pages en el
+# repositorio la primera vez, así que no hace falta tocar nada en los ajustes.
+name: Publicar en GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - claude/pelis-sin-anuncios-plataforma-no4tnb
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un despliegue a la vez, sin cancelar el que ya esté en marcha.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Pruebas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm test
+
+  deploy:
+    name: Desplegar
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Preparar el sitio
+        run: |
+          mkdir -p dist
+          cp index.html dist/
+          cp -r src dist/
+          # Sin esto, Pages pasaría los ficheros por Jekyll.
+          touch dist/.nojekyll
+
+      - name: Subir el artefacto
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Desplegar
+        id: deployment
+        uses: actions/deploy-pages@v4
