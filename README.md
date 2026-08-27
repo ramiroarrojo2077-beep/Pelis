@@ -11,22 +11,33 @@ de archive.org desde el navegador.
 
 ## Arrancar
 
+La forma más simple, sin instalar nada: abrir **`pelis.html`** con doble clic.
+Es la aplicación entera en un solo fichero —código y estilos incrustados— así
+que funciona directamente desde el disco, sin servidor ni Node.
+
+Para desarrollar, con el código repartido en módulos:
+
 ```bash
 npm start          # http://localhost:4173
+npm run build      # regenera pelis.html a partir de src/
 ```
 
 Sirve con cualquier servidor estático (`python3 -m http.server`, Netlify, GitHub
-Pages, nginx…). No hay build ni dependencias: es HTML, CSS y módulos ES nativos.
+Pages, nginx…). No hay dependencias: es HTML, CSS y módulos ES nativos.
 
-> Hace falta servirlo por HTTP: abrir `index.html` con `file://` bloquea los
-> módulos ES por política de origen del navegador.
+> `index.html` sí necesita servirse por HTTP: abrirlo con `file://` bloquea los
+> módulos ES por política de origen del navegador. Por eso existe `pelis.html`,
+> que no tiene módulos que resolver. Comprobado en Chromium; si algún navegador
+> bloquea las peticiones desde `file://` (Safari es el más estricto), queda el
+> servidor local o la versión publicada.
 
 ## Publicar
 
 `.github/workflows/pages.yml` despliega en GitHub Pages en cada push a la rama
-principal (o a mano desde la pestaña Actions). Pasa primero las pruebas, publica
-sólo `index.html` y `src/`, y activa Pages en el repositorio la primera vez, así
-que no hay que configurar nada a mano.
+principal (o a mano desde la pestaña Actions). Pasa primero las pruebas,
+comprueba que `pelis.html` no se ha quedado desactualizado respecto a `src/`,
+publica el sitio junto con el fichero único, y activa Pages en el repositorio la
+primera vez, así que no hay que configurar nada a mano.
 
 Las rutas son relativas y el enrutado va por hash, así que funciona igual en la
 raíz de un dominio que bajo un subdirectorio como `usuario.github.io/Pelis/`.
@@ -79,6 +90,8 @@ borra los que ya se veían; si fallan todas las filas de la portada se muestra u
 ## Estructura
 
 ```
+pelis.html          Aplicación completa en un fichero (generada; doble clic)
+build-single.mjs    Genera pelis.html a partir de index.html y src/
 index.html          Documento y política de seguridad
 server.js           Servidor estático de desarrollo (sin dependencias)
 src/styles.css      Hoja de estilos única

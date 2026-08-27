@@ -34,6 +34,14 @@ jobs:
           node-version: 20
       - run: npm test
 
+      # pelis.html se genera desde src/: si alguien tocó el código y no lo
+      # regeneró, el fichero único quedaría desactualizado sin que se note.
+      - name: Comprobar que pelis.html está al día
+        run: |
+          npm run build
+          git diff --exit-code pelis.html \
+            || { echo '::error::pelis.html está desactualizado; ejecutá npm run build'; exit 1; }
+
   deploy:
     name: Desplegar
     needs: test
@@ -51,8 +59,9 @@ jobs:
 
       - name: Preparar el sitio
         run: |
+          npm run build
           mkdir -p dist
-          cp index.html dist/
+          cp index.html pelis.html dist/
           cp -r src dist/
           # Sin esto, Pages pasaría los ficheros por Jekyll.
           touch dist/.nojekyll

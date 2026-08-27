@@ -5,6 +5,7 @@
   "description": "Plataforma para ver películas de dominio público y bibliotecas abiertas, sin anuncios, con buscador en tiempo real y soporte multi-idioma.",
   "type": "module",
   "scripts": {
+    "build": "node build-single.mjs",
     "start": "node server.js",
     "dev": "node server.js",
     "test": "node --test test/*.test.mjs",

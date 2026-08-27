@@ -1,0 +1,3163 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Pelis · Cine de dominio público sin anuncios</title>
+    <meta
+      name="description"
+      content="Buscá y mirá películas de dominio público y bibliotecas abiertas, sin anuncios ni rastreadores, con búsqueda en tiempo real, versiones en distintos idiomas y subtítulos."
+    />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0b0d12" />
+
+    <!--
+      Fichero generado por `npm run build`. No lo edites a mano: los cambios se
+      hacen en index.html, src/styles.css y src/js/, y se regenera.
+
+      Sigue sin anuncios: la política de seguridad no deja pedir nada a terceros,
+      sólo a archive.org. Aquí el script y el estilo van dentro del propio
+      documento, así que se permiten en línea; al ser un único fichero, no hay
+      código ajeno que se pueda colar.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none';
+               script-src 'unsafe-inline';
+               style-src 'unsafe-inline';
+               img-src data: blob: https://archive.org https://*.archive.org;
+               media-src blob: https://archive.org https://*.archive.org;
+               connect-src https://archive.org https://*.archive.org;
+               object-src 'none';
+               frame-src 'none';
+               form-action 'none'"
+    />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23f2c14e'/%3E%3Cpath d='M9 6v12h6V6H9ZM4 7h2v2H4V7Zm0 4h2v2H4v-2Zm0 4h2v2H4v-2Zm14-8h2v2h-2V7Zm0 4h2v2h-2v-2Zm0 4h2v2h-2v-2Z' fill='%230b0d12'/%3E%3C/svg%3E"
+    />
+
+    <style>
+/* ------------------------------------------------------------------
+   Pelis — hoja de estilos única. Sin frameworks ni fuentes externas.
+------------------------------------------------------------------ */
+
+:root {
+  --bg: #0b0d12;
+  --bg-soft: #12151d;
+  --surface: #171b25;
+  --surface-2: #1e2331;
+  --line: #262c3b;
+  --text: #eef1f7;
+  --text-dim: #a3acc0;
+  --text-faint: #6f7a90;
+  --accent: #f2c14e;
+  --accent-ink: #201803;
+  --danger: #ff6b6b;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 18px 40px rgb(0 0 0 / 45%);
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 15% -10%, #1b2233 0%, transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, #221b2e 0%, transparent 55%),
+    var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--accent);
+  color: var(--accent-ink);
+  padding: 10px 16px;
+  z-index: 50;
+  border-radius: 0 0 var(--radius-sm) 0;
+}
+
+.skip:focus {
+  left: 0;
+}
+
+/* ---------------- Cabecera ---------------- */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+
+.header__inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: grid;
+  grid-template-columns: auto minmax(220px, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand__mark {
+  color: var(--accent);
+  display: flex;
+}
+
+.brand__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brand__text strong {
+  font-size: 20px;
+  letter-spacing: 0.02em;
+}
+
+.brand__text small {
+  color: var(--text-faint);
+  font-size: 11px;
+}
+
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search__icon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-faint);
+  display: flex;
+  pointer-events: none;
+}
+
+.search__input {
+  width: 100%;
+  padding: 12px 44px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text);
+  font: inherit;
+  transition: border-color 0.18s var(--ease), background 0.18s var(--ease);
+}
+
+.search__input::placeholder {
+  color: var(--text-faint);
+}
+
+.search__input:focus {
+  border-color: var(--accent);
+  background: var(--surface-2);
+  outline: none;
+}
+
+.search__input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.search__clear {
+  position: absolute;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-faint);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.search__clear:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.header__tools {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.field__label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+}
+
+.select {
+  appearance: none;
+  background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 4.5 6 8.5l4-4' stroke='%23a3acc0' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat right 9px center/11px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  padding: 8px 28px 8px 10px;
+  max-width: 190px;
+  cursor: pointer;
+}
+
+.select:hover {
+  border-color: var(--text-faint);
+}
+
+/* ---------------- Botones ---------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s var(--ease), background 0.15s var(--ease);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--text);
+}
+
+.btn--ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn--fav.is-active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.btn--more {
+  margin: 0 auto;
+}
+
+.btn[disabled] {
+  opacity: 0.55;
+  cursor: default;
+  transform: none;
+}
+
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+/* ---------------- Layout ---------------- */
+
+.main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 28px 24px 64px;
+  min-height: 60vh;
+}
+
+.view__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.view__title {
+  font-size: clamp(22px, 3vw, 30px);
+  margin: 0;
+}
+
+.view__count {
+  color: var(--text-faint);
+  margin: 0;
+  font-size: 14px;
+}
+
+.view__more {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0 8px;
+}
+
+.hero {
+  padding: 26px 0 34px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 26px;
+}
+
+.hero__title {
+  font-size: clamp(26px, 4.5vw, 44px);
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.hero__text {
+  color: var(--text-dim);
+  margin: 0 0 16px;
+  max-width: 62ch;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.badge {
+  font-size: 12px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-dim);
+}
+
+/* ---------------- Filas y cuadrícula ---------------- */
+
+.row {
+  margin: 0 0 34px;
+}
+
+.row__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.row__title {
+  font-size: 19px;
+  margin: 0;
+}
+
+.row__link {
+  color: var(--text-faint);
+}
+
+.row__nav {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.row__track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 170px;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+}
+
+.row__track > * {
+  scroll-snap-align: start;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 18px 14px;
+}
+
+/* ---------------- Tarjeta ---------------- */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.18s var(--ease);
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: translateY(-4px);
+}
+
+.card__poster {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background:
+    linear-gradient(160deg, var(--surface-2), var(--surface));
+  border: 1px solid var(--line);
+}
+
+.card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.25s var(--ease), transform 0.4s var(--ease);
+}
+
+.card__img.is-broken {
+  opacity: 0;
+}
+
+.card__fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 14px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.card:hover .card__img {
+  transform: scale(1.05);
+}
+
+.card__play {
+  position: absolute;
+  inset: auto 10px 10px auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--accent) 92%, transparent);
+  color: var(--accent-ink);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.18s var(--ease), transform 0.18s var(--ease);
+}
+
+.card:hover .card__play,
+.card:focus-visible .card__play {
+  opacity: 1;
+  transform: none;
+}
+
+.card__progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: rgb(0 0 0 / 55%);
+}
+
+.card__progress-bar {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card__title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card__meta {
+  font-size: 12px;
+  color: var(--text-faint);
+  margin: 0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0;
+}
+
+.chip {
+  font-size: 10.5px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* Tarjeta con botón de quitar (seguir viendo). */
+
+.card-wrap {
+  position: relative;
+}
+
+.card__remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 0;
+  background: rgb(0 0 0 / 65%);
+  color: #fff;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s var(--ease), background 0.15s var(--ease);
+}
+
+.card-wrap:hover .card__remove,
+.card__remove:focus-visible {
+  opacity: 1;
+}
+
+.card__remove:hover {
+  background: var(--danger);
+}
+
+/* Resultados anteriores mientras llega la nueva búsqueda. */
+
+.view.is-busy .grid {
+  opacity: 0.45;
+  transition: opacity 0.2s var(--ease);
+  pointer-events: none;
+}
+
+/* ---------------- Ficha y reproductor ---------------- */
+
+.back {
+  display: inline-block;
+  color: var(--text-faint);
+  margin-bottom: 14px;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.detail {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.detail__head {
+  margin-bottom: 18px;
+}
+
+.detail__title {
+  font-size: clamp(24px, 4vw, 38px);
+  margin: 0 0 6px;
+  letter-spacing: -0.02em;
+}
+
+.detail__sub {
+  color: var(--text-dim);
+  margin: 0 0 12px;
+}
+
+.detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.detail__desc {
+  color: var(--text-dim);
+  max-width: 75ch;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 20px;
+  margin: 22px 0 0;
+  padding: 18px 0 0;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.facts dt {
+  color: var(--text-faint);
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.view--detail .row {
+  margin-top: 40px;
+}
+
+.player__stage {
+  background: #000;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.player__video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 78vh;
+  display: block;
+  margin: 0 auto;
+  background: #000;
+}
+
+.player__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+/* Las etiquetas de calidad ("240p · MPEG4 · 191 MB") no caben en el ancho de
+   los filtros de la cabecera. */
+.player__controls .select {
+  max-width: 260px;
+}
+
+.player__control {
+  display: contents;
+}
+
+.player__resume,
+.player__hint,
+.player__note {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--text-faint);
+}
+
+.player__note:not(:empty) {
+  color: var(--danger);
+}
+
+/* ---------------- Estados ---------------- */
+
+.state {
+  text-align: center;
+  padding: 56px 20px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+
+.state__title {
+  font-size: 18px;
+  margin: 0 0 6px;
+}
+
+.state__hint {
+  color: var(--text-faint);
+  margin: 0 0 16px;
+}
+
+.state--error .state__title {
+  color: var(--danger);
+}
+
+.skeleton-card {
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius);
+  background: linear-gradient(100deg, var(--surface) 30%, var(--surface-2) 50%, var(--surface) 70%);
+  background-size: 220% 100%;
+  animation: shimmer 1.3s infinite linear;
+}
+
+.row__track--skeleton {
+  overflow: hidden;
+}
+
+.skeleton-line,
+.skeleton-stage {
+  border-radius: var(--radius);
+  background: linear-gradient(100deg, var(--surface) 30%, var(--surface-2) 50%, var(--surface) 70%);
+  background-size: 220% 100%;
+  animation: shimmer 1.3s infinite linear;
+}
+
+.skeleton-line--title {
+  height: 38px;
+  width: min(420px, 70%);
+  margin-bottom: 12px;
+}
+
+.skeleton-line--sub {
+  height: 18px;
+  width: min(260px, 45%);
+  margin-bottom: 22px;
+}
+
+.skeleton-stage {
+  aspect-ratio: 16 / 9;
+  max-height: 78vh;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 140% 0;
+  }
+  to {
+    background-position: -40% 0;
+  }
+}
+
+/* ---------------- Pie ---------------- */
+
+.footer {
+  border-top: 1px solid var(--line);
+  padding: 24px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 13px;
+}
+
+.footer a {
+  color: var(--text-dim);
+  text-decoration: underline;
+}
+
+/* ---------------- Adaptable ---------------- */
+
+@media (max-width: 1080px) {
+  .header__inner {
+    grid-template-columns: auto 1fr;
+    row-gap: 12px;
+  }
+
+  .header__tools {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .header__tools > * {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 620px) {
+  .header__inner {
+    padding: 12px 16px;
+    grid-template-columns: 1fr;
+  }
+
+  .brand__text small {
+    display: none;
+  }
+
+  .main {
+    padding: 20px 16px 48px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    gap: 14px 10px;
+  }
+
+  .row__track {
+    grid-auto-columns: 132px;
+  }
+
+  .facts {
+    grid-template-columns: 1fr;
+  }
+
+  .facts dd {
+    margin-bottom: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#app">Ir al contenido</a>
+
+    <header id="header" class="header"></header>
+
+    <main id="app" class="main" tabindex="-1">
+      <noscript>
+        <p class="state">
+          Esta plataforma necesita JavaScript para buscar en la biblioteca de Internet Archive.
+        </p>
+      </noscript>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Catálogo servido por
+        <a href="https://archive.org" target="_blank" rel="noopener noreferrer">Internet Archive</a>.
+        Obras de dominio público y bibliotecas abiertas. Sin anuncios, sin rastreadores, sin cookies
+        de terceros.
+      </p>
+    </footer>
+
+    <script>
+/* ---------- config.js ---------- */
+
+/**
+ * Configuración del catálogo.
+ *
+ * Todo el contenido proviene de colecciones de dominio público / bibliotecas
+ * abiertas de Internet Archive. No se consulta ninguna otra red, no hay
+ * scripts de terceros y por lo tanto no hay anuncios ni rastreadores.
+ */
+
+const ARCHIVE = {
+  search: 'https://archive.org/advancedsearch.php',
+  metadata: 'https://archive.org/metadata',
+  download: 'https://archive.org/download',
+  thumb: 'https://archive.org/services/img',
+  details: 'https://archive.org/details',
+};
+
+/** Colecciones de Internet Archive con material libre de derechos. */
+const PUBLIC_DOMAIN_COLLECTIONS = [
+  'feature_films',
+  'publicmovies212',
+  'public_domain_movies',
+  'classic_cartoons',
+  'animationandcartoons',
+  'film_noir',
+  'silent_films',
+  'silenthanshu',
+  'SciFi_Horror',
+  'short_films',
+  'prelinger',
+  'moviesandfilms',
+  'universal_library',
+  'more_animation',
+  'vintage_cartoons',
+];
+
+/** Resultados por página en búsquedas y filas del inicio. */
+const PAGE_SIZE = 24;
+
+/** Duración de la caché en memoria de las respuestas de la API (ms). */
+const CACHE_TTL = 5 * 60 * 1000;
+
+/** Milisegundos de espera antes de disparar la búsqueda en tiempo real. */
+const SEARCH_DEBOUNCE = 220;
+
+/**
+ * Idiomas de película soportados.
+ * `match` son los valores que Internet Archive usa en el campo `language`
+ * (mezcla ISO 639-1/2 y nombres completos, en inglés y en el idioma nativo).
+ * `tokens` son fragmentos que aparecen en nombres de archivos de vídeo y
+ * subtítulos, y se usan para etiquetar pistas.
+ */
+const LANGUAGES = [
+  {
+    code: 'es', flag: '🇪🇸', name: { es: 'Español', en: 'Spanish' },
+    match: ['Spanish', 'spa', 'es', 'español', 'espanol', 'castellano'],
+    tokens: ['spanish', 'espanol', 'español', 'castellano', 'spa', 'esp', 'es', 'latino'],
+  },
+  {
+    code: 'en', flag: '🇬🇧', name: { es: 'Inglés', en: 'English' },
+    match: ['English', 'eng', 'en'],
+    tokens: ['english', 'eng', 'en', 'ingles'],
+  },
+  {
+    code: 'fr', flag: '🇫🇷', name: { es: 'Francés', en: 'French' },
+    match: ['French', 'fre', 'fra', 'fr', 'français', 'francais'],
+    tokens: ['french', 'francais', 'français', 'fre', 'fra', 'fr'],
+  },
+  {
+    code: 'it', flag: '🇮🇹', name: { es: 'Italiano', en: 'Italian' },
+    match: ['Italian', 'ita', 'it', 'italiano'],
+    tokens: ['italian', 'italiano', 'ita', 'it'],
+  },
+  {
+    code: 'de', flag: '🇩🇪', name: { es: 'Alemán', en: 'German' },
+    match: ['German', 'ger', 'deu', 'de', 'deutsch'],
+    tokens: ['german', 'deutsch', 'ger', 'deu', 'de'],
+  },
+  {
+    code: 'pt', flag: '🇵🇹', name: { es: 'Portugués', en: 'Portuguese' },
+    match: ['Portuguese', 'por', 'pt', 'português', 'portugues'],
+    tokens: ['portuguese', 'portugues', 'português', 'por', 'pt', 'br'],
+  },
+  {
+    code: 'ru', flag: '🇷🇺', name: { es: 'Ruso', en: 'Russian' },
+    match: ['Russian', 'rus', 'ru'],
+    tokens: ['russian', 'rus', 'ru'],
+  },
+  {
+    code: 'ja', flag: '🇯🇵', name: { es: 'Japonés', en: 'Japanese' },
+    match: ['Japanese', 'jpn', 'ja', 'jp'],
+    tokens: ['japanese', 'jpn', 'jp', 'ja'],
+  },
+  {
+    code: 'zh', flag: '🇨🇳', name: { es: 'Chino', en: 'Chinese' },
+    match: ['Chinese', 'chi', 'zho', 'zh', 'mandarin'],
+    tokens: ['chinese', 'mandarin', 'chi', 'zho', 'zh'],
+  },
+  {
+    code: 'hi', flag: '🇮🇳', name: { es: 'Hindi', en: 'Hindi' },
+    match: ['Hindi', 'hin', 'hi'],
+    tokens: ['hindi', 'hin'],
+  },
+  {
+    code: 'ar', flag: '🇸🇦', name: { es: 'Árabe', en: 'Arabic' },
+    match: ['Arabic', 'ara', 'ar'],
+    tokens: ['arabic', 'ara'],
+  },
+  {
+    code: 'silent', flag: '🎞️', name: { es: 'Cine mudo', en: 'Silent' },
+    match: ['Silent', 'No linguistic content', 'zxx'],
+    tokens: ['silent', 'mudo', 'zxx'],
+  },
+];
+
+/** Filas curadas de la portada. Cada una es una consulta a la API. */
+const HOME_ROWS = [
+  {
+    id: 'destacadas',
+    title: { es: 'Destacadas del dominio público', en: 'Public domain highlights' },
+    query: 'collection:(feature_films)',
+    sort: 'downloads desc',
+  },
+  {
+    id: 'espanol',
+    title: { es: 'En español', en: 'In Spanish' },
+    query: 'language:(Spanish OR spa OR español)',
+    sort: 'downloads desc',
+  },
+  {
+    id: 'noir',
+    title: { es: 'Cine negro', en: 'Film noir' },
+    query: 'collection:(film_noir)',
+    sort: 'downloads desc',
+  },
+  {
+    id: 'scifi',
+    title: { es: 'Ciencia ficción y terror', en: 'Sci-fi & horror' },
+    query: 'collection:(SciFi_Horror)',
+    sort: 'downloads desc',
+  },
+  {
+    id: 'animacion',
+    title: { es: 'Animación clásica', en: 'Classic animation' },
+    query: 'collection:(classic_cartoons OR animationandcartoons OR vintage_cartoons)',
+    sort: 'downloads desc',
+  },
+  {
+    id: 'mudo',
+    title: { es: 'Cine mudo', en: 'Silent cinema' },
+    query: 'collection:(silent_films OR silenthanshu)',
+    sort: 'downloads desc',
+  },
+  {
+    id: 'cortos',
+    title: { es: 'Cortometrajes', en: 'Short films' },
+    query: 'collection:(short_films OR prelinger)',
+    sort: 'downloads desc',
+  },
+];
+
+/** Opciones de ordenación disponibles en la búsqueda. */
+const SORT_OPTIONS = [
+  { id: 'relevance', value: '', label: { es: 'Relevancia', en: 'Relevance' } },
+  { id: 'popular', value: 'downloads desc', label: { es: 'Más vistas', en: 'Most watched' } },
+  { id: 'rating', value: 'avg_rating desc', label: { es: 'Mejor valoradas', en: 'Top rated' } },
+  { id: 'newest', value: 'date desc', label: { es: 'Más recientes', en: 'Newest' } },
+  { id: 'oldest', value: 'date asc', label: { es: 'Más antiguas', en: 'Oldest' } },
+  { id: 'title', value: 'titleSorter asc', label: { es: 'Título (A-Z)', en: 'Title (A-Z)' } },
+];
+
+/**
+ * Formatos de vídeo reproducibles en navegador, del más al menos compatible.
+ * El orden importa: h.264 se reproduce en cualquier navegador, mientras que los
+ * derivados "MPEG4" de Internet Archive suelen ser MPEG-4 Parte 2, que Chrome y
+ * Safari a menudo no decodifican. Por eso la compatibilidad manda sobre la
+ * resolución, y `label` deja claro en la interfaz por qué un 480p va primero.
+ */
+const VIDEO_FORMATS = [
+  { test: /^h\.264( ia)?$/i, ext: 'mp4', mime: 'video/mp4', score: 100, label: '' },
+  { test: /mpeg4|mp4/i, ext: 'mp4', mime: 'video/mp4', score: 90, label: 'MPEG4' },
+  { test: /webm/i, ext: 'webm', mime: 'video/webm', score: 70, label: 'WebM' },
+  { test: /ogg video|ogv|theora/i, ext: 'ogv', mime: 'video/ogg', score: 40, label: 'Ogg' },
+];
+
+/* ---------- i18n.js ---------- */
+
+/** Textos de la interfaz. El idioma se elige en la cabecera y se recuerda. */
+
+const UI_LANGUAGES = [
+  { code: 'es', label: 'Español' },
+  { code: 'en', label: 'English' },
+];
+
+const STRINGS = {
+  es: {
+    brand: 'Pelis',
+    tagline: 'Cine de dominio público, sin anuncios',
+    searchPlaceholder: 'Buscar películas, directores, temas…',
+    searchLabel: 'Buscar películas',
+    clear: 'Limpiar',
+    allLanguages: 'Todos los idiomas',
+    language: 'Idioma',
+    sort: 'Orden',
+    uiLanguage: 'Idioma de la interfaz',
+    home: 'Inicio',
+    favorites: 'Mis favoritas',
+    continueWatching: 'Seguir viendo',
+    noFavorites: 'Todavía no guardaste ninguna película.',
+    results: 'Resultados',
+    resultsFor: 'Resultados para',
+    resultCount: (n) => `${n.toLocaleString('es')} películas`,
+    loading: 'Cargando…',
+    loadMore: 'Cargar más',
+    empty: 'No encontramos nada con esa búsqueda.',
+    emptyHint: 'Probá con otro título, un director o quitá el filtro de idioma.',
+    error: 'No pudimos conectar con la biblioteca.',
+    retry: 'Reintentar',
+    back: 'Volver',
+    resume: 'Seguir desde',
+    version: 'Versión / idioma',
+    quality: 'Calidad',
+    subtitles: 'Subtítulos',
+    subtitlesOff: 'Desactivados',
+    speed: 'Velocidad',
+    addFavorite: 'Guardar',
+    removeFavorite: 'Guardada',
+    download: 'Descargar',
+    source: 'Ficha en Internet Archive',
+    noVideo: 'Esta ficha no tiene ningún vídeo reproducible en el navegador.',
+    noAds: 'Sin anuncios',
+    publicDomain: 'Dominio público',
+    unknownLanguage: 'Idioma sin identificar',
+    original: 'Versión original',
+    subtitleError: 'No se pudieron cargar los subtítulos.',
+    shortcuts: 'Atajos: espacio play/pausa · ←/→ 10 s · F pantalla completa · M silencio · C subtítulos',
+    footer: 'Contenido de Internet Archive. Sin rastreadores, sin cookies de terceros, sin publicidad.',
+    languageOfFilm: 'Idioma de la película',
+    year: 'Año',
+    duration: 'Duración',
+    director: 'Dirección / autoría',
+    collections: 'Colecciones',
+    removeFromList: 'Quitar de seguir viendo',
+    searching: 'Buscando…',
+    loadMoreError: 'No pudimos cargar más resultados.',
+    documentTitle: 'Pelis · Cine de dominio público sin anuncios',
+  },
+  en: {
+    brand: 'Pelis',
+    tagline: 'Public domain cinema, ad-free',
+    searchPlaceholder: 'Search films, directors, topics…',
+    searchLabel: 'Search films',
+    clear: 'Clear',
+    allLanguages: 'All languages',
+    language: 'Language',
+    sort: 'Sort',
+    uiLanguage: 'Interface language',
+    home: 'Home',
+    favorites: 'My list',
+    continueWatching: 'Keep watching',
+    noFavorites: 'You have not saved any film yet.',
+    results: 'Results',
+    resultsFor: 'Results for',
+    resultCount: (n) => `${n.toLocaleString('en')} films`,
+    loading: 'Loading…',
+    loadMore: 'Load more',
+    empty: 'Nothing matched that search.',
+    emptyHint: 'Try another title, a director, or drop the language filter.',
+    error: 'We could not reach the library.',
+    retry: 'Retry',
+    back: 'Back',
+    resume: 'Resume from',
+    version: 'Version / language',
+    quality: 'Quality',
+    subtitles: 'Subtitles',
+    subtitlesOff: 'Off',
+    speed: 'Speed',
+    addFavorite: 'Save',
+    removeFavorite: 'Saved',
+    download: 'Download',
+    source: 'View on Internet Archive',
+    noVideo: 'This record has no browser-playable video.',
+    noAds: 'Ad-free',
+    publicDomain: 'Public domain',
+    unknownLanguage: 'Unidentified language',
+    original: 'Original version',
+    subtitleError: 'Subtitles could not be loaded.',
+    shortcuts: 'Shortcuts: space play/pause · ←/→ 10s · F fullscreen · M mute · C subtitles',
+    footer: 'Content from Internet Archive. No trackers, no third-party cookies, no ads.',
+    languageOfFilm: 'Film language',
+    year: 'Year',
+    duration: 'Length',
+    director: 'Director / author',
+    collections: 'Collections',
+    removeFromList: 'Remove from keep watching',
+    searching: 'Searching…',
+    loadMoreError: 'We could not load more results.',
+    documentTitle: 'Pelis · Ad-free public domain cinema',
+  },
+};
+
+let current = 'es';
+
+function setUILanguage(code) {
+  current = STRINGS[code] ? code : 'es';
+  document.documentElement.lang = current;
+  return current;
+}
+
+function uiLanguage() {
+  return current;
+}
+
+/** Texto traducido. Acepta funciones para plurales/interpolación. */
+function t(key, ...args) {
+  const value = STRINGS[current]?.[key] ?? STRINGS.es[key] ?? key;
+  return typeof value === 'function' ? value(...args) : value;
+}
+
+/** Elige el campo localizado de un objeto {es, en}. */
+function pick(entry) {
+  if (!entry) return '';
+  return entry[current] ?? entry.es ?? Object.values(entry)[0] ?? '';
+}
+
+/* ---------- store.js ---------- */
+
+/**
+ * Estado persistente en el navegador: favoritas, progreso de reproducción y
+ * preferencias. Todo vive en localStorage del propio dominio; nada sale de acá.
+ */
+
+const KEYS = {
+  favorites: 'pelis:favorites',
+  progress: 'pelis:progress',
+  prefs: 'pelis:prefs',
+};
+
+const MAX_PROGRESS_ENTRIES = 60;
+
+function read(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function write(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Modo privado o cuota llena: la app sigue funcionando sin persistencia.
+  }
+}
+
+/* ---------- Preferencias ---------- */
+
+const defaultPrefs = { ui: null, language: '', sort: 'downloads desc', volume: 1, subtitles: '' };
+
+function getPrefs() {
+  return { ...defaultPrefs, ...read(KEYS.prefs, {}) };
+}
+
+function setPref(key, value) {
+  const prefs = getPrefs();
+  prefs[key] = value;
+  write(KEYS.prefs, prefs);
+  return prefs;
+}
+
+/* ---------- Favoritas ---------- */
+
+function getFavorites() {
+  const list = read(KEYS.favorites, []);
+  return Array.isArray(list) ? list : [];
+}
+
+function isFavorite(id) {
+  return getFavorites().some((entry) => entry.id === id);
+}
+
+function toggleFavorite(movie) {
+  const list = getFavorites();
+  const index = list.findIndex((entry) => entry.id === movie.id);
+  if (index >= 0) {
+    list.splice(index, 1);
+  } else {
+    list.unshift({
+      id: movie.id,
+      title: movie.title,
+      year: movie.year,
+      poster: movie.poster,
+      languages: movie.languages ?? [],
+      savedAt: Date.now(),
+    });
+  }
+  write(KEYS.favorites, list.slice(0, 200));
+  return index < 0;
+}
+
+/* ---------- Progreso ---------- */
+
+function getProgressMap() {
+  const map = read(KEYS.progress, {});
+  return map && typeof map === 'object' ? map : {};
+}
+
+function getProgress(id) {
+  return getProgressMap()[id] ?? null;
+}
+
+function saveProgress(movie, { time, duration, versionId }) {
+  if (!movie?.id || !Number.isFinite(time) || time < 5) return;
+  const map = getProgressMap();
+  const ratio = duration ? time / duration : 0;
+
+  // Si terminó (>95%), lo sacamos de "seguir viendo".
+  if (ratio > 0.95) {
+    delete map[movie.id];
+    write(KEYS.progress, map);
+    return;
+  }
+
+  const entry = {
+    id: movie.id,
+    title: movie.title,
+    year: movie.year,
+    poster: movie.poster,
+    languages: movie.languages ?? [],
+    time,
+    duration: duration || null,
+    versionId: versionId || null,
+    updatedAt: Date.now(),
+  };
+
+  // La entrada recién guardada encabeza la lista y nunca se descarta al
+  // recortar: Date.now() tiene resolución de milisegundo, así que varias
+  // entradas pueden empatar y el desempate por orden de inserción dejaría
+  // fuera justo la que acabamos de escribir.
+  const rest = Object.values(map)
+    .filter((item) => item?.id && item.id !== entry.id)
+    .sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0))
+    .slice(0, MAX_PROGRESS_ENTRIES - 1);
+
+  write(KEYS.progress, Object.fromEntries([entry, ...rest].map((item) => [item.id, item])));
+}
+
+function getContinueWatching() {
+  return Object.values(getProgressMap()).sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
+}
+
+function clearProgress(id) {
+  const map = getProgressMap();
+  delete map[id];
+  write(KEYS.progress, map);
+}
+
+/* ---------- media.js ---------- */
+
+/**
+ * Utilidades puras sobre los metadatos de Internet Archive.
+ * Este módulo no toca el DOM: se puede testear con `npm test`.
+ */
+
+const SUBTITLE_EXT = /\.(srt|vtt)$/i;
+const VIDEO_EXT = /\.(mp4|m4v|webm|ogv|ogg)$/i;
+
+/** Quita acentos y pasa a minúsculas para comparar de forma laxa. */
+function fold(value) {
+  return String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+/** Convierte cualquier valor de metadatos en array. */
+function toArray(value) {
+  if (value == null) return [];
+  return Array.isArray(value) ? value : [value];
+}
+
+/**
+ * Traduce un valor del campo `language` de Internet Archive a nuestro código
+ * interno ('Spanish', 'spa', 'castellano' → 'es'). Devuelve null si no lo
+ * reconocemos, para no inventar idiomas.
+ */
+function normalizeLanguage(raw) {
+  const value = fold(raw);
+  if (!value) return null;
+  for (const lang of LANGUAGES) {
+    if (lang.match.some((candidate) => fold(candidate) === value)) return lang.code;
+  }
+  // Valores compuestos tipo "English; Spanish" o "eng, spa".
+  const parts = value.split(/[;,/|]+/).map((part) => part.trim()).filter(Boolean);
+  if (parts.length > 1) {
+    for (const part of parts) {
+      const code = normalizeLanguage(part);
+      if (code) return code;
+    }
+  }
+  return null;
+}
+
+/** Todos los idiomas reconocidos de un documento o metadato. */
+function languagesOf(source) {
+  const codes = new Set();
+  for (const value of toArray(source?.language)) {
+    for (const part of String(value).split(/[;,/|]+/)) {
+      const code = normalizeLanguage(part);
+      if (code) codes.add(code);
+    }
+  }
+  return [...codes];
+}
+
+/** Definición de idioma por código. */
+function languageByCode(code) {
+  return LANGUAGES.find((lang) => lang.code === code) || null;
+}
+
+/**
+ * Deduce el idioma a partir del nombre de un archivo
+ * ("Metropolis.spanish.srt" → 'es'). El token tiene que ser una palabra
+ * entera, y los códigos cortos ("es", "de", "it") sólo cuentan al final del
+ * nombre: si no, "is_it_a_dream.mp4" pasaría por italiano.
+ */
+function detectLanguageFromName(name) {
+  const base = fold(name).replace(SUBTITLE_EXT, '').replace(VIDEO_EXT, '');
+  const words = base.split(/[^a-z0-9]+/).filter(Boolean);
+  if (!words.length) return null;
+
+  let best = null;
+  for (const lang of LANGUAGES) {
+    for (const token of lang.tokens) {
+      const folded = fold(token);
+      const index = words.lastIndexOf(folded);
+      if (index === -1) continue;
+      if (folded.length <= 3 && index < words.length - 2) continue;
+      // Los tokens largos y los que aparecen al final del nombre mandan.
+      const score = folded.length * 10 + index;
+      if (!best || score > best.score) best = { code: lang.code, score };
+    }
+  }
+  return best?.code ?? null;
+}
+
+/** Formato reproducible al que corresponde un archivo, o null. */
+function videoFormatOf(file) {
+  const format = String(file?.format ?? '');
+  const name = String(file?.name ?? '');
+  for (const candidate of VIDEO_FORMATS) {
+    if (candidate.test.test(format)) return candidate;
+  }
+  const ext = name.match(VIDEO_EXT)?.[1]?.toLowerCase();
+  if (!ext) return null;
+  if (ext === 'mp4' || ext === 'm4v') return VIDEO_FORMATS[1];
+  if (ext === 'webm') return VIDEO_FORMATS[2];
+  return VIDEO_FORMATS[3];
+}
+
+/** Sube por la cadena `original` hasta el archivo maestro del que deriva. */
+function rootOriginal(file, byName, depth = 0) {
+  // Algunos ítems traen `original` como array; nos quedamos con el primero.
+  const original = Array.isArray(file?.original) ? file.original[0] : file?.original;
+  if (!original || typeof original !== 'string' || depth > 5) return file?.name ?? '';
+  const parent = byName.get(original);
+  if (!parent || parent === file) return original;
+  return rootOriginal(parent, byName, depth + 1);
+}
+
+function qualityLabel(file, format) {
+  const height = Number(file.height);
+  const base = Number.isFinite(height) && height > 0 ? `${height}p` : '';
+  if (base) return [base, format.label].filter(Boolean).join(' · ');
+
+  const raw = String(file.format ?? '');
+  if (/512kb/i.test(raw)) return '512 kb';
+  if (/hires/i.test(raw)) return 'HiRes';
+  return raw || 'Vídeo';
+}
+
+/**
+ * Agrupa los archivos de un ítem en "versiones" reproducibles.
+ * Cada versión corresponde a un máster distinto (habitualmente, un doblaje
+ * o un montaje distinto) y contiene sus derivados ordenados por calidad.
+ */
+function buildVersions(files, { itemLanguages = [], downloadBase = '' } = {}) {
+  const list = toArray(files).filter((file) => file && file.name);
+  const byName = new Map(list.map((file) => [file.name, file]));
+  const groups = new Map();
+
+  for (const file of list) {
+    const format = videoFormatOf(file);
+    if (!format) continue;
+    if (/\.(thumbs?|gif|png|jpe?g)$/i.test(file.name)) continue;
+
+    const key = rootOriginal(file, byName) || file.name;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push({ file, format });
+  }
+
+  const versions = [];
+  for (const [key, entries] of groups) {
+    const sources = entries
+      .map(({ file, format }) => ({
+        name: file.name,
+        url: `${downloadBase}/${encodeURIComponent(file.name)}`,
+        mime: format.mime,
+        // El contenedor manda sobre la resolución: un MP4 480p es preferible a
+        // un Ogg 720p porque se reproduce en cualquier navegador.
+        tier: format.score,
+        height: Number(file.height) || 0,
+        size: Number(file.size) || null,
+        label: qualityLabel(file, format),
+        length: parseRuntime(file.length),
+      }))
+      .sort((a, b) => b.tier - a.tier || b.height - a.height || (b.size ?? 0) - (a.size ?? 0));
+
+    if (!sources.length) continue;
+
+    const detected = detectLanguageFromName(key);
+    const language = detected ?? (itemLanguages.length === 1 ? itemLanguages[0] : null);
+    versions.push({
+      id: key,
+      language,
+      detected: Boolean(detected),
+      title: prettyName(key),
+      duration: sources.find((source) => source.length)?.length ?? null,
+      sources,
+    });
+  }
+
+  // Primero las versiones con idioma reconocido, luego por calidad.
+  return versions.sort((a, b) => {
+    if (Boolean(b.detected) !== Boolean(a.detected)) return Number(b.detected) - Number(a.detected);
+    return b.sources[0].tier - a.sources[0].tier || b.sources[0].height - a.sources[0].height;
+  });
+}
+
+/** Pistas de subtítulos disponibles en el ítem. */
+function buildSubtitles(files, { downloadBase = '' } = {}) {
+  return toArray(files)
+    .filter((file) => file?.name && SUBTITLE_EXT.test(file.name))
+    .map((file) => ({
+      name: file.name,
+      url: `${downloadBase}/${encodeURIComponent(file.name)}`,
+      format: file.name.toLowerCase().endsWith('.vtt') ? 'vtt' : 'srt',
+      language: detectLanguageFromName(file.name),
+      title: prettyName(file.name),
+    }));
+}
+
+/** Nombre de archivo → etiqueta legible. */
+function prettyName(name) {
+  return String(name)
+    .replace(/\.[a-z0-9]{2,5}$/i, '')
+    .replace(/[._]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Convierte SubRip (.srt) a WebVTT, el único formato que entiende <track>.
+ * Tolera BOM, saltos de línea Windows y tiempos con coma o punto.
+ */
+function srtToVtt(input) {
+  const body = String(input)
+    .replace(/^\ufeff/, '')
+    .replace(/\r\n?/g, '\n')
+    .replace(
+      /(\d{1,2}:\d{2}:\d{2})[,.](\d{1,3})\s*-->\s*(\d{1,2}:\d{2}:\d{2})[,.](\d{1,3})/g,
+      (_match, start, startMs, end, endMs) =>
+        `${start}.${startMs.padEnd(3, '0')} --> ${end}.${endMs.padEnd(3, '0')}`,
+    )
+    .trim();
+  return /^WEBVTT/.test(body) ? body : `WEBVTT\n\n${body}`;
+}
+
+/** "1:02:03" o "3723" o "3723.5" → segundos. */
+function parseRuntime(value) {
+  if (value == null || value === '') return null;
+  const text = String(value).trim();
+  if (/^\d+(\.\d+)?$/.test(text)) return Math.round(Number(text));
+  const parts = text.split(':').map(Number);
+  if (parts.some(Number.isNaN)) return null;
+  return Math.round(parts.reduce((total, part) => total * 60 + part, 0));
+}
+
+/** Segundos → "1 h 23 min" / "12 min". */
+function formatDuration(seconds) {
+  if (!seconds || seconds < 0) return '';
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.round((seconds % 3600) / 60);
+  if (hours && minutes) return `${hours} h ${minutes} min`;
+  if (hours) return `${hours} h`;
+  return `${Math.max(minutes, 1)} min`;
+}
+
+/** Segundos → "12:34" para el reproductor. */
+function formatClock(seconds) {
+  if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
+  const total = Math.floor(seconds);
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const secs = total % 60;
+  const pad = (value) => String(value).padStart(2, '0');
+  return hours ? `${hours}:${pad(minutes)}:${pad(secs)}` : `${minutes}:${pad(secs)}`;
+}
+
+/** Bytes → "1,2 GB". */
+function formatBytes(bytes) {
+  const value = Number(bytes);
+  if (!Number.isFinite(value) || value <= 0) return '';
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const index = Math.min(Math.floor(Math.log(value) / Math.log(1024)), units.length - 1);
+  const scaled = value / 1024 ** index;
+  return `${scaled.toFixed(scaled >= 100 || index === 0 ? 0 : 1)} ${units[index]}`;
+}
+
+/** Año de estreno a partir de `year` o `date`. */
+function yearOf(doc) {
+  const raw = doc?.year ?? doc?.date ?? doc?.publicdate;
+  const match = String(toArray(raw)[0] ?? '').match(/\d{4}/);
+  return match ? match[0] : '';
+}
+
+/** Descripción sin HTML, recortada. */
+function plainText(value, limit = 0) {
+  const text = toArray(value)
+    .join(' ')
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!limit || text.length <= limit) return text;
+  return `${text.slice(0, limit).replace(/\s+\S*$/, '')}…`;
+}
+
+/**
+ * Limpia el texto del buscador para meterlo en una consulta Lucene.
+ *
+ * Escapar no basta: un término con AND/OR/NOT en mayúsculas se interpreta como
+ * operador, y las comillas de escape anidadas dentro de una frase entrecomillada
+ * rompen la consulta entera. Por eso quitamos la sintaxis en lugar de escaparla
+ * y pasamos los operadores a minúscula, donde son palabras normales.
+ */
+function sanitizeTerm(term) {
+  return String(term ?? '')
+    .replace(/[+\-!(){}[\]^"~*?:\\/&|]/g, ' ')
+    .replace(/\b(AND|OR|NOT|TO)\b/g, (word) => word.toLowerCase())
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Arma la consulta Lucene para la API de búsqueda.
+ * Siempre restringe a películas dentro de las colecciones de dominio público.
+ */
+function buildSearchQuery({ term = '', language = '', extra = '' } = {}) {
+  const clauses = ['mediatype:(movies)'];
+  clauses.push(`collection:(${PUBLIC_DOMAIN_COLLECTIONS.join(' OR ')})`);
+
+  const words = sanitizeTerm(term).split(' ').filter(Boolean);
+  if (words.length) {
+    const phrase = words.join(' ');
+    const last = words[words.length - 1];
+    // Búsqueda por prefijo sobre la última palabra: los resultados aparecen
+    // antes de terminar de escribir. Con una sola letra no compensa, porque el
+    // comodín obliga al índice a recorrer medio catálogo.
+    const partial = words
+      .slice(0, -1)
+      .concat(last.length >= 2 ? `${last}*` : last)
+      .join(' AND ');
+    clauses.push(
+      `(title:("${phrase}") OR title:(${partial}) OR creator:("${phrase}") ` +
+        `OR subject:(${partial}) OR description:("${phrase}"))`,
+    );
+  }
+
+  const lang = languageByCode(language);
+  if (lang) clauses.push(`language:(${lang.match.map((value) => `"${value}"`).join(' OR ')})`);
+
+  if (extra) clauses.push(`(${extra})`);
+  return clauses.join(' AND ');
+}
+
+/* ---------- archive.js ---------- */
+
+/**
+ * Cliente de la API pública de Internet Archive.
+ *
+ * Sólo se habla con archive.org: ni analítica, ni publicidad, ni terceros.
+ * Incluye caché en memoria y cancelación de peticiones para que el buscador
+ * en tiempo real no lance decenas de consultas encadenadas.
+ */
+
+const cache = new Map();
+
+function fromCache(key) {
+  const hit = cache.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.time > CACHE_TTL) {
+    cache.delete(key);
+    return null;
+  }
+  return hit.value;
+}
+
+function intoCache(key, value) {
+  cache.set(key, { time: Date.now(), value });
+  // Cota simple para no crecer sin límite en sesiones largas.
+  if (cache.size > 120) cache.delete(cache.keys().next().value);
+  return value;
+}
+
+const RETRY_DELAY = 700;
+
+const wait = (ms, signal) =>
+  new Promise((resolve, reject) => {
+    const timer = setTimeout(resolve, ms);
+    signal?.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timer);
+        reject(new DOMException('Aborted', 'AbortError'));
+      },
+      { once: true },
+    );
+  });
+
+/**
+ * GET con un reintento. Internet Archive devuelve 5xx o 429 de vez en cuando y
+ * un segundo intento suele bastar; los 4xx no se reintentan porque no van a
+ * cambiar, y un aborto tampoco.
+ */
+async function getJSON(url, { signal, attempt = 0 } = {}) {
+  let response;
+  try {
+    response = await fetch(url, { signal, headers: { Accept: 'application/json' } });
+  } catch (error) {
+    if (error.name === 'AbortError' || attempt > 0) throw error;
+    await wait(RETRY_DELAY, signal);
+    return getJSON(url, { signal, attempt: attempt + 1 });
+  }
+
+  if (!response.ok) {
+    const retryable = response.status === 429 || response.status >= 500;
+    if (retryable && attempt === 0) {
+      await wait(RETRY_DELAY, signal);
+      return getJSON(url, { signal, attempt: attempt + 1 });
+    }
+    throw new Error(`Internet Archive respondió ${response.status}`);
+  }
+
+  try {
+    return await response.json();
+  } catch {
+    // A veces devuelve una página de error HTML con estado 200.
+    throw new Error('Internet Archive devolvió una respuesta ilegible.');
+  }
+}
+
+const SEARCH_FIELDS = [
+  'identifier',
+  'title',
+  'year',
+  'date',
+  'description',
+  'creator',
+  'language',
+  'downloads',
+  'avg_rating',
+  'runtime',
+  'item_size',
+  'collection',
+  'subject',
+];
+
+/** Póster del ítem (servicio de miniaturas de Internet Archive). */
+function posterFor(identifier) {
+  return `${ARCHIVE.thumb}/${encodeURIComponent(identifier)}`;
+}
+
+/** Ficha pública del ítem en archive.org. */
+function detailsFor(identifier) {
+  return `${ARCHIVE.details}/${encodeURIComponent(identifier)}`;
+}
+
+/**
+ * Busca películas.
+ * @returns {Promise<{total:number, page:number, items:Array}>}
+ */
+async function search({
+  term = '',
+  language = '',
+  sort = '',
+  page = 1,
+  rows = PAGE_SIZE,
+  query = '',
+  signal,
+} = {}) {
+  const q = query ? buildSearchQuery({ term, language, extra: query }) : buildSearchQuery({ term, language });
+  const params = new URLSearchParams();
+  params.set('q', q);
+  for (const field of SEARCH_FIELDS) params.append('fl[]', field);
+  if (sort) params.append('sort[]', sort);
+  params.set('rows', String(rows));
+  params.set('page', String(page));
+  params.set('output', 'json');
+
+  const url = `${ARCHIVE.search}?${params}`;
+  const cached = fromCache(url);
+  if (cached) return cached;
+
+  const data = await getJSON(url, { signal });
+  const docs = data?.response?.docs ?? [];
+  const result = {
+    total: Number(data?.response?.numFound ?? docs.length),
+    page,
+    items: docs.map(toItem),
+  };
+  return intoCache(url, result);
+}
+
+/** Normaliza un documento de búsqueda al modelo que usa la interfaz. */
+function toItem(doc) {
+  return {
+    id: doc.identifier,
+    title: Array.isArray(doc.title) ? doc.title[0] : doc.title || doc.identifier,
+    creator: Array.isArray(doc.creator) ? doc.creator.join(', ') : doc.creator || '',
+    description: doc.description,
+    year: doc.year || doc.date,
+    languages: languagesOf(doc),
+    rawLanguages: doc.language,
+    downloads: Number(doc.downloads) || 0,
+    rating: Number(doc.avg_rating) || null,
+    runtime: doc.runtime,
+    size: Number(doc.item_size) || null,
+    collections: doc.collection,
+    poster: posterFor(doc.identifier),
+  };
+}
+
+/**
+ * Metadatos completos de una película, ya resueltos en versiones de vídeo
+ * (una por doblaje/montaje) y pistas de subtítulos.
+ */
+async function getMovie(identifier, { signal } = {}) {
+  const url = `${ARCHIVE.metadata}/${encodeURIComponent(identifier)}`;
+  const cached = fromCache(url);
+  if (cached) return cached;
+
+  const data = await getJSON(url, { signal });
+  if (!data || !data.metadata) {
+    throw new Error('No encontramos esta película en Internet Archive.');
+  }
+
+  const meta = data.metadata;
+  const downloadBase = `${ARCHIVE.download}/${encodeURIComponent(identifier)}`;
+  const itemLanguages = languagesOf(meta);
+  const versions = buildVersions(data.files, { itemLanguages, downloadBase });
+  const subtitles = buildSubtitles(data.files, { downloadBase });
+
+  const movie = {
+    id: identifier,
+    title: Array.isArray(meta.title) ? meta.title[0] : meta.title || identifier,
+    creator: Array.isArray(meta.creator) ? meta.creator.join(', ') : meta.creator || '',
+    description: meta.description,
+    year: meta.year || meta.date,
+    languages: itemLanguages,
+    rawLanguages: meta.language,
+    licenseUrl: meta.licenseurl || '',
+    rights: meta.rights || '',
+    collections: meta.collection,
+    subjects: meta.subject,
+    poster: posterFor(identifier),
+    versions,
+    subtitles,
+    detailsUrl: detailsFor(identifier),
+  };
+  return intoCache(url, movie);
+}
+
+/**
+ * Descarga una pista de subtítulos y la devuelve como URL de blob WebVTT,
+ * que es lo que admite <track> sin problemas de CORS.
+ */
+async function loadSubtitleTrack(track, { signal } = {}) {
+  const response = await fetch(track.url, { signal });
+  if (!response.ok) throw new Error(`No se pudo cargar ${track.name}`);
+  const text = await response.text();
+  const vtt = track.format === 'vtt' && /^\s*WEBVTT/.test(text) ? text : srtToVtt(text);
+  return URL.createObjectURL(new Blob([vtt], { type: 'text/vtt' }));
+}
+
+/* ---------- ui.js ---------- */
+
+/** Helpers de DOM y componentes reutilizables. */
+
+/** Crea un elemento. `props` admite class, text, html, dataset y atributos. */
+function el(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props)) {
+    if (value == null || value === false) continue;
+    if (key === 'class') node.className = value;
+    else if (key === 'text') node.textContent = value;
+    else if (key === 'html') node.innerHTML = value;
+    else if (key === 'dataset') Object.assign(node.dataset, value);
+    else if (key === 'style') node.setAttribute('style', value);
+    else if (key.startsWith('on') && typeof value === 'function') {
+      node.addEventListener(key.slice(2).toLowerCase(), value);
+    } else if (value === true) node.setAttribute(key, '');
+    else node.setAttribute(key, value);
+  }
+  for (const child of [].concat(children)) {
+    if (child == null || child === false) continue;
+    node.append(child.nodeType ? child : document.createTextNode(String(child)));
+  }
+  return node;
+}
+
+function clear(node) {
+  while (node.firstChild) node.removeChild(node.firstChild);
+  return node;
+}
+
+/** Etiqueta legible de un idioma ("🇪🇸 Español"). */
+function languageLabel(code) {
+  const lang = languageByCode(code);
+  if (!lang) return t('unknownLanguage');
+  return `${lang.flag} ${pick(lang.name)}`;
+}
+
+function languageChips(codes = []) {
+  if (!codes.length) return null;
+  return el(
+    'ul',
+    { class: 'chips', 'aria-label': t('languageOfFilm') },
+    codes.slice(0, 3).map((code) => el('li', { class: 'chip', text: languageLabel(code) })),
+  );
+}
+
+/**
+ * Tarjeta de película para las cuadrículas y carruseles.
+ * Con `onRemove` se envuelve en un contenedor para poder colgar el botón de
+ * quitar: un <button> dentro de un <a> sería HTML inválido.
+ */
+function movieCard(item, { progress = null, onRemove = null } = {}) {
+  const year = yearOf(item);
+  const runtime = parseRuntime(item.runtime);
+  const meta = [year, runtime ? formatDuration(runtime) : ''].filter(Boolean).join(' · ');
+
+  const poster = el('img', {
+    class: 'card__img',
+    src: item.poster,
+    alt: '',
+    loading: 'lazy',
+    decoding: 'async',
+    onerror: (event) => event.currentTarget.classList.add('is-broken'),
+  });
+
+  const ratio = progress?.duration ? Math.min(progress.time / progress.duration, 1) : 0;
+
+  const card = el(
+    'a',
+    {
+      class: 'card',
+      href: `#/peli/${encodeURIComponent(item.id)}`,
+      'aria-label': `${item.title}${year ? ` (${year})` : ''}`,
+    },
+    [
+      el('div', { class: 'card__poster' }, [
+        el('span', { class: 'card__fallback', 'aria-hidden': 'true', text: item.title }),
+        poster,
+        el('span', { class: 'card__play', 'aria-hidden': 'true', html: playIcon() }),
+        ratio > 0 &&
+          el('span', { class: 'card__progress' }, [
+            el('span', { class: 'card__progress-bar', style: `width:${(ratio * 100).toFixed(1)}%` }),
+          ]),
+      ]),
+      el('div', { class: 'card__body' }, [
+        el('h3', { class: 'card__title', text: item.title }),
+        meta && el('p', { class: 'card__meta', text: meta }),
+        languageChips(item.languages),
+      ]),
+    ],
+  );
+
+  if (!onRemove) return card;
+
+  return el('div', { class: 'card-wrap' }, [
+    card,
+    el('button', {
+      class: 'card__remove',
+      type: 'button',
+      title: t('removeFromList'),
+      'aria-label': `${t('removeFromList')}: ${item.title}`,
+      text: '×',
+      onclick: (event) => {
+        event.preventDefault();
+        onRemove(item);
+      },
+    }),
+  ]);
+}
+
+function playIcon() {
+  return '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5.14v13.72L19 12z"/></svg>';
+}
+
+/** Cuadrícula de tarjetas. */
+function grid(items, { progressMap = {}, onRemove = null } = {}) {
+  return el(
+    'div',
+    { class: 'grid' },
+    items.map((item) => movieCard(item, { progress: progressMap[item.id], onRemove })),
+  );
+}
+
+/** Carrusel horizontal con título. */
+function carousel({ title, items, progressMap = {}, action = null, onRemove = null }) {
+  const track = el(
+    'div',
+    { class: 'row__track' },
+    items.map((item) => movieCard(item, { progress: progressMap[item.id], onRemove })),
+  );
+
+  const scrollBy = (direction) => {
+    track.scrollBy({ left: direction * track.clientWidth * 0.9, behavior: 'smooth' });
+  };
+
+  return el('section', { class: 'row' }, [
+    el('div', { class: 'row__head' }, [
+      el('h2', { class: 'row__title', text: title }),
+      action,
+      el('div', { class: 'row__nav' }, [
+        el('button', {
+          class: 'icon-btn',
+          type: 'button',
+          'aria-label': '‹',
+          text: '‹',
+          onclick: () => scrollBy(-1),
+        }),
+        el('button', {
+          class: 'icon-btn',
+          type: 'button',
+          'aria-label': '›',
+          text: '›',
+          onclick: () => scrollBy(1),
+        }),
+      ]),
+    ]),
+    track,
+  ]);
+}
+
+/** Esqueletos de carga (evitan el salto de layout). */
+function skeletonRow(count = 6) {
+  return el(
+    'div',
+    { class: 'row__track row__track--skeleton' },
+    Array.from({ length: count }, () => el('div', { class: 'skeleton-card' })),
+  );
+}
+
+function skeletonGrid(count = 12) {
+  return el(
+    'div',
+    { class: 'grid' },
+    Array.from({ length: count }, () => el('div', { class: 'skeleton-card' })),
+  );
+}
+
+/** Estado vacío. */
+function emptyState(title, hint) {
+  return el('div', { class: 'state' }, [
+    el('p', { class: 'state__title', text: title }),
+    hint && el('p', { class: 'state__hint', text: hint }),
+  ]);
+}
+
+/** Estado de error con botón de reintento. */
+function errorState(message, onRetry) {
+  return el('div', { class: 'state state--error' }, [
+    el('p', { class: 'state__title', text: t('error') }),
+    message && el('p', { class: 'state__hint', text: message }),
+    onRetry && el('button', { class: 'btn', type: 'button', text: t('retry'), onclick: onRetry }),
+  ]);
+}
+
+/** <select> etiquetado. */
+function selectField({ id, label, options, value, onchange }) {
+  const select = el(
+    'select',
+    { id, class: 'select', onchange: (event) => onchange(event.currentTarget.value) },
+    options.map((option) =>
+      el('option', { value: option.value, selected: option.value === value }, [option.label]),
+    ),
+  );
+  return el('div', { class: 'field' }, [
+    el('label', { class: 'field__label', for: id, text: label }),
+    select,
+  ]);
+}
+
+/** Opciones del filtro de idioma de la película. */
+function languageOptions() {
+  return [
+    { value: '', label: t('allLanguages') },
+    ...LANGUAGES.map((lang) => ({ value: lang.code, label: `${lang.flag} ${pick(lang.name)}` })),
+  ];
+}
+
+/** Resumen corto para la ficha. */
+function description(value, limit = 700) {
+  const text = plainText(value, limit);
+  return text ? el('p', { class: 'detail__desc', text }) : null;
+}
+
+/* ---------- player.js ---------- */
+
+/**
+ * Reproductor. Usa el <video> nativo (sin librerías, sin anuncios) y añade
+ * encima lo que el navegador no da: cambio de versión/doblaje, calidad,
+ * subtítulos convertidos a WebVTT, velocidad, atajos y reanudación.
+ */
+
+const SPEEDS = [0.75, 1, 1.25, 1.5, 2];
+const SAVE_EVERY_MS = 5000;
+
+/**
+ * Etiqueta de cada versión. Si dos comparten idioma (pasa cuando un ítem sube
+ * dos montajes del mismo doblaje) se añade la calidad para poder distinguirlas.
+ */
+function versionLabels(versions) {
+  const base = versions.map((version, index) => {
+    if (version.language) return languageLabel(version.language);
+    if (index === 0 && versions.length === 1) return t('original');
+    return version.title || `${t('version')} ${index + 1}`;
+  });
+
+  const seen = new Map();
+  for (const label of base) seen.set(label, (seen.get(label) ?? 0) + 1);
+
+  return base.map((label, index) => {
+    if (seen.get(label) === 1) return label;
+    const quality = versions[index].sources[0]?.label;
+    return quality ? `${label} · ${quality}` : `${label} (${index + 1})`;
+  });
+}
+
+function subtitleLabel(track, index) {
+  if (track.language) return languageLabel(track.language);
+  return track.title || `${t('subtitles')} ${index + 1}`;
+}
+
+/**
+ * @param {object} movie  Película ya resuelta por archive.getMovie()
+ * @param {object} options
+ * @returns {{element: HTMLElement, destroy: () => void}}
+ */
+function createPlayer(movie, { startAt = 0, startVersionId = null } = {}) {
+  const prefs = getPrefs();
+  const versions = movie.versions;
+
+  let versionIndex = Math.max(versions.findIndex((version) => version.id === startVersionId), 0);
+  let sourceIndex = 0;
+  let lastSaved = 0;
+  let objectUrl = null;
+  let subtitleRequest = null;
+
+  const video = el('video', {
+    class: 'player__video',
+    controls: true,
+    playsinline: true,
+    preload: 'metadata',
+    poster: movie.poster,
+    tabindex: '0',
+  });
+  video.volume = Number.isFinite(prefs.volume) ? prefs.volume : 1;
+
+  const note = el('p', { class: 'player__note', text: '' });
+
+  /* ---------- fuentes ---------- */
+
+  function currentVersion() {
+    return versions[versionIndex];
+  }
+
+  function loadSource({ keepTime = true, autoplay = false } = {}) {
+    const version = currentVersion();
+    const source = version.sources[Math.min(sourceIndex, version.sources.length - 1)];
+    const time = keepTime ? video.currentTime : 0;
+    const wasPlaying = autoplay || (!video.paused && !video.ended);
+
+    video.src = source.url;
+    video.load();
+
+    const target = keepTime ? time : startAt;
+    if (target > 0) {
+      const seek = () => {
+        try {
+          video.currentTime = target;
+        } catch {
+          /* algunas fuentes no admiten seek hasta tener metadatos */
+        }
+      };
+      // `once` evita que el listener quede colgado si el vídeo nunca carga.
+      video.addEventListener('loadedmetadata', seek, { once: true });
+    }
+    if (wasPlaying) video.play().catch(() => {});
+  }
+
+  /* ---------- subtítulos ---------- */
+
+  function clearTracks() {
+    for (const track of [...video.querySelectorAll('track')]) track.remove();
+    if (objectUrl) {
+      URL.revokeObjectURL(objectUrl);
+      objectUrl = null;
+    }
+  }
+
+  async function applySubtitles(name) {
+    subtitleRequest?.abort();
+    clearTracks();
+    note.textContent = '';
+    setPref('subtitles', name || '');
+    if (!name) return;
+
+    const track = movie.subtitles.find((entry) => entry.name === name);
+    if (!track) return;
+
+    const controller = new AbortController();
+    subtitleRequest = controller;
+    try {
+      objectUrl = await loadSubtitleTrack(track, { signal: controller.signal });
+      const node = el('track', {
+        kind: 'subtitles',
+        src: objectUrl,
+        // 'silent' es una etiqueta nuestra, no un código BCP 47.
+        srclang: track.language === 'silent' ? 'zxx' : track.language || 'und',
+        label: subtitleLabel(track, 0),
+        default: true,
+      });
+      node.addEventListener('load', () => {
+        const textTrack = [...video.textTracks].at(-1);
+        if (textTrack) textTrack.mode = 'showing';
+      });
+      video.append(node);
+    } catch (error) {
+      if (error.name !== 'AbortError') note.textContent = t('subtitleError');
+    }
+  }
+
+  /* ---------- controles ---------- */
+
+  const labels = versionLabels(versions);
+
+  const versionField =
+    versions.length > 1
+      ? selectField({
+          id: 'player-version',
+          label: t('version'),
+          value: String(versionIndex),
+          options: versions.map((_version, index) => ({
+            value: String(index),
+            label: labels[index],
+          })),
+          onchange: (value) => {
+            versionIndex = Number(value);
+            sourceIndex = 0;
+            renderQuality();
+            loadSource({ keepTime: true });
+          },
+        })
+      : null;
+
+  const qualitySlot = el('div', { class: 'player__control' });
+
+  function renderQuality() {
+    const version = currentVersion();
+    qualitySlot.replaceChildren();
+    if (version.sources.length < 2) return;
+    qualitySlot.append(
+      selectField({
+        id: 'player-quality',
+        label: t('quality'),
+        value: String(sourceIndex),
+        options: version.sources.map((source, index) => ({
+          value: String(index),
+          label: [source.label, formatBytes(source.size)].filter(Boolean).join(' · '),
+        })),
+        onchange: (value) => {
+          sourceIndex = Number(value);
+          loadSource({ keepTime: true });
+        },
+      }),
+    );
+  }
+
+  const preferredSubtitle = movie.subtitles.some((track) => track.name === prefs.subtitles)
+    ? prefs.subtitles
+    : '';
+
+  const subtitleField = movie.subtitles.length
+    ? selectField({
+        id: 'player-subs',
+        label: t('subtitles'),
+        value: preferredSubtitle,
+        options: [
+          { value: '', label: t('subtitlesOff') },
+          ...movie.subtitles.map((track, index) => ({
+            value: track.name,
+            label: subtitleLabel(track, index),
+          })),
+        ],
+        onchange: applySubtitles,
+      })
+    : null;
+
+  const speedField = selectField({
+    id: 'player-speed',
+    label: t('speed'),
+    value: '1',
+    options: SPEEDS.map((speed) => ({ value: String(speed), label: `${speed}×` })),
+    onchange: (value) => {
+      video.playbackRate = Number(value);
+    },
+  });
+
+  const controls = el(
+    'div',
+    { class: 'player__controls' },
+    [versionField, qualitySlot, subtitleField, speedField].filter(Boolean),
+  );
+
+  /* ---------- persistencia y atajos ---------- */
+
+  function persist() {
+    saveProgress(movie, {
+      time: video.currentTime,
+      duration: Number.isFinite(video.duration) ? video.duration : null,
+      versionId: currentVersion()?.id ?? null,
+    });
+  }
+
+  const onTimeUpdate = () => {
+    const now = Date.now();
+    if (now - lastSaved < SAVE_EVERY_MS) return;
+    lastSaved = now;
+    persist();
+  };
+
+  const onVolumeChange = () => setPref('volume', video.volume);
+
+  const onKeyDown = (event) => {
+    const target = event.target;
+    if (target instanceof HTMLElement && /input|select|textarea/i.test(target.tagName)) return;
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+
+    switch (event.key) {
+      case ' ':
+      case 'k':
+        event.preventDefault();
+        video.paused ? video.play().catch(() => {}) : video.pause();
+        break;
+      case 'ArrowRight':
+        video.currentTime = Math.min(video.currentTime + 10, video.duration || Infinity);
+        break;
+      case 'ArrowLeft':
+        video.currentTime = Math.max(video.currentTime - 10, 0);
+        break;
+      case 'f':
+        if (document.fullscreenElement) document.exitFullscreen();
+        else video.requestFullscreen?.().catch(() => {});
+        break;
+      case 'm':
+        video.muted = !video.muted;
+        break;
+      case 'c': {
+        const track = video.textTracks[0];
+        if (track) track.mode = track.mode === 'showing' ? 'hidden' : 'showing';
+        break;
+      }
+      default:
+        return;
+    }
+  };
+
+  video.addEventListener('timeupdate', onTimeUpdate);
+  video.addEventListener('pause', persist);
+  video.addEventListener('volumechange', onVolumeChange);
+  const onError = () => {
+    const version = currentVersion();
+    // Si el formato preferido falla, probamos el siguiente derivado.
+    if (sourceIndex < version.sources.length - 1) {
+      sourceIndex += 1;
+      renderQuality();
+      loadSource({ keepTime: true });
+    } else {
+      note.textContent = t('noVideo');
+    }
+  };
+
+  video.addEventListener('error', onError);
+  document.addEventListener('keydown', onKeyDown);
+  window.addEventListener('beforeunload', persist);
+
+  renderQuality();
+  loadSource({ keepTime: false });
+  if (preferredSubtitle) applySubtitles(preferredSubtitle);
+
+  const resumeHint =
+    startAt > 5
+      ? el('p', { class: 'player__resume', text: `${t('resume')} ${formatClock(startAt)}` })
+      : null;
+
+  const element = el('div', { class: 'player' }, [
+    el('div', { class: 'player__stage' }, [video]),
+    resumeHint,
+    controls,
+    note,
+    el('p', { class: 'player__hint', text: t('shortcuts') }),
+  ]);
+
+  return {
+    element,
+    destroy() {
+      persist();
+      subtitleRequest?.abort();
+      video.removeEventListener('timeupdate', onTimeUpdate);
+      video.removeEventListener('pause', persist);
+      video.removeEventListener('volumechange', onVolumeChange);
+      // Sin esto, un error que llegue justo al salir de la ficha reengancharía
+      // el siguiente derivado y seguiría descargando vídeo de fondo.
+      video.removeEventListener('error', onError);
+      document.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('beforeunload', persist);
+      video.pause();
+      clearTracks();
+      video.removeAttribute('src');
+      video.load();
+    },
+  };
+}
+
+/* ---------- app.js ---------- */
+
+/**
+ * Arranque, enrutado y vistas.
+ *
+ * Rutas (hash, sin servidor):
+ *   #/                           portada con filas curadas
+ *   #/buscar?q=…&lang=…&sort=…   resultados en tiempo real
+ *   #/peli/:identificador        ficha + reproductor
+ *   #/favoritas                  lista guardada
+ */
+
+/** Internet Archive deja de paginar alrededor de los 10 000 resultados. */
+const DEEP_PAGING_LIMIT = 10000;
+
+const app = document.getElementById('app');
+const header = document.getElementById('header');
+
+const state = {
+  term: '',
+  language: '',
+  sort: 'downloads desc',
+  page: 1,
+  items: [],
+  total: 0,
+  loading: false,
+  stale: false,
+  exhausted: false,
+};
+
+let searchController = null;
+let detailController = null;
+let debounceTimer = null;
+let cleanupView = null;
+let searchInput = null;
+let cameFromNavigation = false;
+let searchScroll = 0;
+
+/**
+ * Testigo de la vista actual.
+ *
+ * Todas las vistas cargan datos de forma asíncrona, así que una respuesta puede
+ * llegar cuando el usuario ya se fue a otra pantalla. Cada render pide un
+ * testigo antes de empezar y comprueba que siga siendo el vigente antes de
+ * pintar; si no, se descarta en silencio.
+ */
+let viewToken = 0;
+const beginView = () => ++viewToken;
+const isCurrent = (token) => token === viewToken;
+
+/* ------------------------------------------------------------------ */
+/* Cabecera                                                            */
+/* ------------------------------------------------------------------ */
+
+function renderHeader() {
+  clear(header);
+
+  searchInput = el('input', {
+    id: 'search',
+    class: 'search__input',
+    type: 'search',
+    placeholder: t('searchPlaceholder'),
+    'aria-label': t('searchLabel'),
+    autocomplete: 'off',
+    spellcheck: 'false',
+    value: state.term,
+    oninput: (event) => onType(event.currentTarget.value),
+  });
+
+  const searchBox = el('div', { class: 'search' }, [
+    el('span', { class: 'search__icon', 'aria-hidden': 'true', html: searchIcon() }),
+    searchInput,
+    el('button', {
+      class: 'search__clear',
+      type: 'button',
+      'aria-label': t('clear'),
+      text: '×',
+      onclick: () => {
+        clearTimeout(debounceTimer);
+        state.term = '';
+        searchInput.value = '';
+        searchInput.focus();
+        applyFilters();
+      },
+    }),
+  ]);
+
+  header.append(
+    el('div', { class: 'header__inner' }, [
+      el('a', { class: 'brand', href: '#/', 'aria-label': t('brand') }, [
+        el('span', { class: 'brand__mark', 'aria-hidden': 'true', html: logoIcon() }),
+        el('span', { class: 'brand__text' }, [
+          el('strong', { text: t('brand') }),
+          el('small', { text: t('tagline') }),
+        ]),
+      ]),
+      searchBox,
+      el('div', { class: 'header__tools' }, [
+        selectField({
+          id: 'filter-language',
+          label: t('languageOfFilm'),
+          value: state.language,
+          options: languageOptions(),
+          onchange: (value) => {
+            state.language = value;
+            setPref('language', value);
+            applyFilters();
+          },
+        }),
+        selectField({
+          id: 'filter-sort',
+          label: t('sort'),
+          value: state.sort,
+          options: SORT_OPTIONS.map((option) => ({
+            value: option.value,
+            label: pick(option.label),
+          })),
+          onchange: (value) => {
+            state.sort = value;
+            setPref('sort', value);
+            applyFilters();
+          },
+        }),
+        selectField({
+          id: 'filter-ui',
+          label: t('uiLanguage'),
+          value: uiLanguage(),
+          options: UI_LANGUAGES.map((lang) => ({ value: lang.code, label: lang.label })),
+          onchange: (value) => {
+            setUILanguage(value);
+            setPref('ui', value);
+            renderHeader();
+            route();
+          },
+        }),
+        el('a', { class: 'btn btn--ghost', href: '#/favoritas', text: `★ ${t('favorites')}` }),
+      ]),
+    ]),
+  );
+}
+
+function searchIcon() {
+  return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+}
+
+function logoIcon() {
+  return '<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm1 3v2h2V7H5Zm12 0v2h2V7h-2ZM5 11v2h2v-2H5Zm12 0v2h2v-2h-2ZM5 15v2h2v-2H5Zm12 0v2h2v-2h-2ZM9 7v10h6V7H9Z"/></svg>';
+}
+
+/** ¿Estamos en una pantalla de resultados? */
+function isSearching() {
+  return location.hash.startsWith('#/buscar');
+}
+
+/** ¿Estamos en la portada? */
+function isHome() {
+  return !location.hash || location.hash === '#' || location.hash === '#/';
+}
+
+/**
+ * Reacciona a un cambio de filtros. Si hay una búsqueda en marcha (o los nuevos
+ * filtros la hacen posible) se relanza; en la portada se repinta, porque el
+ * orden también afecta a sus filas; y en la ficha o en favoritas el ajuste sólo
+ * se guarda, que sacar al usuario de donde está sería peor.
+ */
+function applyFilters() {
+  if (isSearching() || state.term || state.language) {
+    runSearch({ reset: true, push: false });
+    return;
+  }
+  if (isHome()) renderHome(beginView());
+}
+
+/* ------------------------------------------------------------------ */
+/* Buscador en tiempo real                                             */
+/* ------------------------------------------------------------------ */
+
+function onType(value) {
+  state.term = value;
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    // La primera pulsación crea una entrada de historial; el resto la sustituye,
+    // para que "atrás" vuelva a la portada y no letra por letra.
+    const push = !isSearching();
+    runSearch({ reset: true, push });
+  }, SEARCH_DEBOUNCE);
+}
+
+function searchHash() {
+  const params = new URLSearchParams();
+  if (state.term) params.set('q', state.term);
+  if (state.language) params.set('lang', state.language);
+  if (state.sort) params.set('sort', state.sort);
+  return `#/buscar${params.toString() ? `?${params}` : ''}`;
+}
+
+/**
+ * Ejecuta la búsqueda con el estado actual y pinta los resultados.
+ * Sin `reset` carga la página siguiente y la añade a la lista.
+ */
+async function runSearch({ reset = false, push = false } = {}) {
+  if (reset && !state.term && !state.language) {
+    navigate('#/');
+    return;
+  }
+
+  const hash = searchHash();
+  if (push) history.pushState({}, '', hash);
+  else history.replaceState({}, '', hash);
+
+  // La página sólo avanza si la petición sale bien: así un error de red no deja
+  // un hueco de 24 películas al reintentar.
+  const page = reset ? 1 : state.page + 1;
+  const token = beginView();
+
+  searchController?.abort();
+  searchController = new AbortController();
+  state.loading = true;
+  if (reset) state.stale = true;
+  renderSearchView();
+
+  try {
+    const result = await search({
+      term: state.term,
+      language: state.language,
+      sort: state.sort,
+      page,
+      rows: PAGE_SIZE,
+      signal: searchController.signal,
+    });
+    if (!isCurrent(token)) return;
+
+    state.page = page;
+    state.items = reset ? result.items : [...state.items, ...result.items];
+    state.total = result.total;
+    state.stale = false;
+    state.loading = false;
+    // Internet Archive no deja paginar sin fin: pasada esa profundidad, el
+    // buscador devuelve error en vez de resultados.
+    state.exhausted =
+      result.items.length < PAGE_SIZE ||
+      state.items.length >= result.total ||
+      page * PAGE_SIZE >= DEEP_PAGING_LIMIT;
+    renderSearchView();
+  } catch (error) {
+    if (error.name === 'AbortError' || !isCurrent(token)) return;
+    state.loading = false;
+    if (reset) {
+      state.items = [];
+      state.stale = false;
+      mount(errorState(error.message, () => runSearch({ reset: true })), { keepScroll: true });
+    } else {
+      // En "cargar más" no tiramos lo que ya se veía: sólo avisamos.
+      renderSearchView({ loadMoreError: error.message });
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Vistas                                                              */
+/* ------------------------------------------------------------------ */
+
+function mount(node, { keepScroll = false, focus = false } = {}) {
+  cleanupView?.();
+  cleanupView = null;
+  clear(app).append(node);
+  if (!keepScroll) window.scrollTo({ top: 0 });
+  // Tras una navegación real movemos el foco al contenido, para que quien use
+  // lector de pantalla o teclado no se quede en la cabecera.
+  if (focus) app.focus({ preventScroll: true });
+}
+
+function setTitle(text) {
+  document.title = text ? `${text} · ${t('brand')}` : t('documentTitle');
+}
+
+function renderSearchView({ loadMoreError = '' } = {}) {
+  const heading = state.term
+    ? `${t('resultsFor')} “${state.term}”`
+    : `${t('results')} · ${languageLabel(state.language)}`;
+  setTitle(state.term || languageLabel(state.language));
+
+  const busy = state.loading && state.stale;
+  const view = el('section', { class: `view${busy ? ' is-busy' : ''}` }, [
+    el('div', { class: 'view__head' }, [
+      el('h1', { class: 'view__title', text: heading }),
+      el('p', {
+        class: 'view__count',
+        'aria-live': 'polite',
+        text: busy ? t('searching') : t('resultCount', state.total),
+      }),
+    ]),
+  ]);
+
+  // Mientras llega la nueva búsqueda se mantienen los resultados anteriores
+  // atenuados: es menos brusco que vaciar la pantalla en cada pulsación.
+  if (!state.items.length) {
+    view.append(busy ? skeletonGrid() : emptyState(t('empty'), t('emptyHint')));
+    mount(view, { keepScroll: true });
+    return;
+  }
+
+  view.append(grid(state.items, { progressMap: getProgressMap() }));
+
+  if (loadMoreError) {
+    view.append(
+      el('div', { class: 'view__more' }, [
+        el('p', { class: 'state__hint', text: loadMoreError }),
+        el('button', { class: 'btn', type: 'button', text: t('retry'), onclick: () => runSearch() }),
+      ]),
+    );
+    mount(view, { keepScroll: true });
+    return;
+  }
+
+  const more =
+    state.exhausted || busy
+      ? null
+      : el('button', {
+          class: 'btn btn--more',
+          type: 'button',
+          text: state.loading ? t('loading') : t('loadMore'),
+          disabled: state.loading,
+          onclick: () => runSearch(),
+        });
+  if (more) view.append(el('div', { class: 'view__more' }, [more]));
+
+  mount(view, { keepScroll: true });
+
+  // Scroll infinito. El botón sigue existiendo para quien navegue con teclado.
+  if (more && !state.loading) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting) && !state.loading && !state.exhausted) {
+          runSearch();
+        }
+      },
+      { rootMargin: '600px' },
+    );
+    observer.observe(more);
+    cleanupView = () => observer.disconnect();
+  }
+}
+
+async function renderHome(token) {
+  setTitle('');
+
+  const view = el('section', { class: 'view' }, [
+    el('div', { class: 'hero' }, [
+      el('h1', { class: 'hero__title', text: t('tagline') }),
+      el('p', { class: 'hero__text', text: t('footer') }),
+      el('div', { class: 'badges' }, [
+        el('span', { class: 'badge', text: `✔ ${t('noAds')}` }),
+        el('span', { class: 'badge', text: `⚖ ${t('publicDomain')}` }),
+        el('span', { class: 'badge', text: `🌍 ${t('languageOfFilm')}` }),
+      ]),
+    ]),
+  ]);
+
+  const progressMap = getProgressMap();
+  const continueList = getContinueWatching().slice(0, 12);
+  if (continueList.length) {
+    view.append(
+      carousel({
+        title: t('continueWatching'),
+        items: continueList,
+        progressMap,
+        onRemove: (item) => {
+          clearProgress(item.id);
+          renderHome(beginView());
+        },
+      }),
+    );
+  }
+
+  const favorites = getFavorites().slice(0, 12);
+  if (favorites.length) {
+    view.append(
+      carousel({
+        title: t('favorites'),
+        items: favorites,
+        progressMap,
+        action: el('a', { class: 'row__link', href: '#/favoritas', text: '→' }),
+      }),
+    );
+  }
+
+  const slots = HOME_ROWS.map((row) => {
+    const section = el('section', { class: 'row' }, [
+      el('div', { class: 'row__head' }, [el('h2', { class: 'row__title', text: pick(row.title) })]),
+      skeletonRow(),
+    ]);
+    view.append(section);
+    return { row, section };
+  });
+
+  mount(view, { focus: cameFromNavigation });
+
+  const controller = new AbortController();
+  cleanupView = () => controller.abort();
+
+  // Las filas se cargan en paralelo y cada una se pinta en cuanto llega.
+  let failures = 0;
+  let lastError = '';
+  await Promise.allSettled(
+    slots.map(async ({ row, section }) => {
+      try {
+        const result = await search({
+          query: row.query,
+          sort: state.sort || row.sort,
+          rows: 18,
+          signal: controller.signal,
+        });
+        if (!isCurrent(token)) return;
+        if (!result.items.length) {
+          section.remove();
+          return;
+        }
+        section.replaceWith(carousel({ title: pick(row.title), items: result.items, progressMap }));
+      } catch (error) {
+        if (error.name === 'AbortError' || !isCurrent(token)) return;
+        failures += 1;
+        lastError = error.message;
+        section.remove();
+      }
+    }),
+  );
+
+  // Si falla todo, un único aviso con reintento en vez de siete cajas de error.
+  if (isCurrent(token) && failures === slots.length && slots.length) {
+    view.append(errorState(lastError, () => renderHome(beginView())));
+  }
+}
+
+function renderFavorites() {
+  const favorites = getFavorites();
+  setTitle(t('favorites'));
+
+  const view = el('section', { class: 'view' }, [
+    el('div', { class: 'view__head' }, [el('h1', { class: 'view__title', text: t('favorites') })]),
+  ]);
+  view.append(
+    favorites.length
+      ? grid(favorites, { progressMap: getProgressMap() })
+      : emptyState(t('noFavorites'), t('emptyHint')),
+  );
+  mount(view, { focus: cameFromNavigation });
+}
+
+function detailSkeleton() {
+  return el('section', { class: 'view view--detail' }, [
+    el('div', { class: 'detail' }, [
+      el('div', { class: 'skeleton-line skeleton-line--title' }),
+      el('div', { class: 'skeleton-line skeleton-line--sub' }),
+      el('div', { class: 'skeleton-stage' }),
+    ]),
+  ]);
+}
+
+async function renderDetail(identifier, token) {
+  mount(detailSkeleton());
+
+  detailController?.abort();
+  detailController = new AbortController();
+  const controller = detailController;
+
+  let movie;
+  try {
+    movie = await getMovie(identifier, { signal: controller.signal });
+  } catch (error) {
+    if (error.name === 'AbortError' || !isCurrent(token)) return;
+    mount(errorState(error.message, () => renderDetail(identifier, beginView())));
+    return;
+  }
+  if (!isCurrent(token)) return;
+
+  setTitle(movie.title);
+
+  const year = yearOf(movie);
+  const progress = getProgress(identifier);
+  const player = movie.versions.length
+    ? createPlayer(movie, {
+        startAt: progress?.time ?? 0,
+        startVersionId: progress?.versionId ?? null,
+      })
+    : null;
+
+  const languages = movie.languages;
+  const best = movie.versions[0]?.sources[0] ?? null;
+
+  const favoriteButton = el('button', {
+    class: `btn btn--fav${isFavorite(identifier) ? ' is-active' : ''}`,
+    type: 'button',
+    text: isFavorite(identifier) ? `★ ${t('removeFavorite')}` : `☆ ${t('addFavorite')}`,
+    onclick: (event) => {
+      const added = toggleFavorite(movie);
+      const button = event.currentTarget;
+      button.classList.toggle('is-active', added);
+      button.setAttribute('aria-pressed', String(added));
+      button.textContent = added ? `★ ${t('removeFavorite')}` : `☆ ${t('addFavorite')}`;
+    },
+    'aria-pressed': String(isFavorite(identifier)),
+  });
+
+  const facts = [
+    [
+      t('languageOfFilm'),
+      languages.length ? languages.map(languageLabel).join(', ') : t('unknownLanguage'),
+    ],
+    [t('year'), year],
+    [t('director'), movie.creator],
+    [t('duration'), formatDuration(movie.versions[0]?.duration)],
+    [t('quality'), best ? [best.label, formatBytes(best.size)].filter(Boolean).join(' · ') : ''],
+    [
+      t('subtitles'),
+      movie.subtitles.length
+        ? [...new Set(movie.subtitles.map((track) => languageLabel(track.language)))].join(', ')
+        : t('subtitlesOff'),
+    ],
+    [
+      t('collections'),
+      toArray(movie.collections)
+        .slice(0, 4)
+        .map((name) => String(name).replace(/_/g, ' '))
+        .join(', '),
+    ],
+  ].filter(([, value]) => value);
+
+  const view = el('section', { class: 'view view--detail' }, [
+    el('a', { class: 'back', href: '#/', text: `← ${t('back')}` }),
+    el('div', { class: 'detail' }, [
+      el('header', { class: 'detail__head' }, [
+        el('h1', { class: 'detail__title', text: movie.title }),
+        el('p', { class: 'detail__sub', text: [year, movie.creator].filter(Boolean).join(' · ') }),
+        el('div', { class: 'badges' }, [
+          el('span', { class: 'badge', text: `✔ ${t('noAds')}` }),
+          el('span', { class: 'badge', text: `⚖ ${t('publicDomain')}` }),
+          ...languages.map((code) => el('span', { class: 'badge', text: languageLabel(code) })),
+        ]),
+      ]),
+      player ? player.element : emptyState(t('noVideo')),
+      el('div', { class: 'detail__actions' }, [
+        favoriteButton,
+        best &&
+          el('a', {
+            class: 'btn btn--ghost',
+            href: best.url,
+            download: '',
+            rel: 'noopener',
+            text: `↓ ${t('download')}`,
+          }),
+        el('a', {
+          class: 'btn btn--ghost',
+          href: detailsFor(identifier),
+          target: '_blank',
+          rel: 'noopener noreferrer',
+          text: t('source'),
+        }),
+      ]),
+      description(movie.description),
+      el(
+        'dl',
+        { class: 'facts' },
+        facts.flatMap(([label, value]) => [
+          el('dt', { text: label }),
+          el('dd', { text: String(value) }),
+        ]),
+      ),
+    ]),
+  ]);
+
+  mount(view, { focus: cameFromNavigation });
+  cleanupView = () => {
+    player?.destroy();
+    controller.abort();
+  };
+
+  loadRelated(movie, view, token, controller.signal);
+}
+
+/** Fila "relacionadas" a partir del tema o la autoría de la película. */
+async function loadRelated(movie, view, token, signal) {
+  const seed = plainText(toArray(movie.subjects)[0] ?? movie.creator ?? '', 60);
+  if (!seed) return;
+  try {
+    const result = await search({ term: seed, rows: 12, sort: 'downloads desc', signal });
+    if (!isCurrent(token) || !view.isConnected) return;
+    const items = result.items.filter((item) => item.id !== movie.id).slice(0, 10);
+    if (!items.length) return;
+    view.append(
+      carousel({ title: `${t('results')}: ${seed}`, items, progressMap: getProgressMap() }),
+    );
+  } catch {
+    // Una fila de recomendaciones que falle no debe estropear la ficha.
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Enrutado                                                            */
+/* ------------------------------------------------------------------ */
+
+function navigate(hash) {
+  if (location.hash === hash) route();
+  else location.hash = hash;
+}
+
+/** Mantiene los controles de la cabecera en sintonía con el estado. */
+function syncControls() {
+  if (searchInput) searchInput.value = state.term;
+  const language = document.getElementById('filter-language');
+  if (language) language.value = state.language;
+  const sort = document.getElementById('filter-sort');
+  if (sort) sort.value = state.sort;
+}
+
+function route() {
+  const raw = location.hash.replace(/^#/, '');
+
+  // Anclas ajenas al router (por ejemplo el enlace "Ir al contenido", que apunta
+  // a #app) no deben provocar una navegación.
+  if (raw && !raw.startsWith('/')) return;
+
+  const [path, queryString = ''] = (raw || '/').split('?');
+  const params = new URLSearchParams(queryString);
+  const token = beginView();
+
+  if (path.startsWith('/peli/')) {
+    const identifier = decodeURIComponent(path.slice('/peli/'.length));
+    if (identifier) {
+      renderDetail(identifier, token);
+      return;
+    }
+  }
+
+  if (path.startsWith('/favoritas')) {
+    renderFavorites();
+    return;
+  }
+
+  if (path.startsWith('/buscar')) {
+    const term = params.get('q') ?? '';
+    const language = params.get('lang') ?? state.language;
+    const sort = params.get('sort') ?? state.sort;
+
+    // Volver de una ficha a los mismos resultados no debe reiniciar la
+    // búsqueda: se recupera la lista tal como estaba, con todas las páginas
+    // que se habían cargado, y el scroll donde se dejó.
+    const sameQuery = term === state.term && language === state.language && sort === state.sort;
+    if (sameQuery && state.items.length && !state.loading) {
+      syncControls();
+      renderSearchView();
+      window.scrollTo({ top: searchScroll });
+      return;
+    }
+
+    state.term = term;
+    state.language = language;
+    state.sort = sort;
+    syncControls();
+    state.items = [];
+    runSearch({ reset: true });
+    return;
+  }
+
+  state.term = '';
+  syncControls();
+  renderHome(token);
+}
+
+/* ------------------------------------------------------------------ */
+/* Arranque                                                            */
+/* ------------------------------------------------------------------ */
+
+function boot() {
+  const prefs = getPrefs();
+  const browser = (navigator.language || 'es').slice(0, 2);
+  setUILanguage(prefs.ui || (UI_LANGUAGES.some((lang) => lang.code === browser) ? browser : 'es'));
+  state.language = prefs.language ?? '';
+  state.sort = prefs.sort ?? 'downloads desc';
+
+  renderHeader();
+  route();
+
+  window.addEventListener('hashchange', () => {
+    cameFromNavigation = true;
+    route();
+    cameFromNavigation = false;
+  });
+
+  // Se recuerda la posición dentro de los resultados para restaurarla al volver.
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (isSearching()) searchScroll = window.scrollY;
+    },
+    { passive: true },
+  );
+
+  // "/" enfoca el buscador, como en cualquier catálogo decente.
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== '/' || event.metaKey || event.ctrlKey) return;
+    const target = event.target;
+    if (target instanceof HTMLElement && /input|select|textarea/i.test(target.tagName)) return;
+    event.preventDefault();
+    searchInput?.focus();
+    searchInput?.select();
+  });
+}
+
+boot();
+
+    </script>
+  </body>
+</html>
