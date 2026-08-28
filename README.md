@@ -35,9 +35,13 @@ Pages, nginx…). No hay dependencias: es HTML, CSS y módulos ES nativos.
 
 `.github/workflows/pages.yml` despliega en GitHub Pages en cada push a la rama
 principal (o a mano desde la pestaña Actions). Pasa primero las pruebas,
-comprueba que `pelis.html` no se ha quedado desactualizado respecto a `src/`,
-publica el sitio junto con el fichero único, y activa Pages en el repositorio la
-primera vez, así que no hay que configurar nada a mano.
+comprueba que `pelis.html` no se ha quedado desactualizado respecto a `src/` y
+publica el sitio junto con el fichero único.
+
+Antes del primer despliegue hay que dar un permiso, una sola vez: en **Settings
+→ Pages**, poner *Source* en **GitHub Actions**. El token del flujo puede
+publicar, pero no crear el sitio de Pages, así que esa parte la tiene que
+habilitar el dueño del repositorio. A partir de ahí es automático.
 
 Las rutas son relativas y el enrutado va por hash, así que funciona igual en la
 raíz de un dominio que bajo un subdirectorio como `usuario.github.io/Pelis/`.

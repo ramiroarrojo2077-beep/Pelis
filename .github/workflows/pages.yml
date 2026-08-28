@@ -1,8 +1,12 @@
 # Publica la aplicación en GitHub Pages.
 #
 # No hay compilación: se copian los ficheros que el navegador necesita
-# (index.html y src/) y se suben tal cual. `enablement: true` activa Pages en el
-# repositorio la primera vez, así que no hace falta tocar nada en los ajustes.
+# (index.html, pelis.html y src/) y se suben tal cual.
+#
+# PASO ÚNICO ANTES DEL PRIMER DESPLIEGUE: en Settings -> Pages, poner Source en
+# "GitHub Actions". El token del flujo puede publicar, pero no puede crear el
+# sitio de Pages ("Resource not accessible by integration"): eso lo tiene que
+# habilitar una vez el dueño del repositorio. Después, cada push despliega solo.
 name: Publicar en GitHub Pages
 
 on:
@@ -28,10 +32,10 @@ jobs:
     name: Pruebas
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22
       - run: npm test
 
       # pelis.html se genera desde src/: si alguien tocó el código y no lo
@@ -50,8 +54,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
+      # `enablement` intenta activar Pages solo; si el token no tiene permiso,
+      # falla aquí y hay que activarlo a mano una vez (ver cabecera).
       - name: Configurar Pages
         uses: actions/configure-pages@v5
         with:
